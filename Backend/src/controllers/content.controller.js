@@ -49,7 +49,7 @@ class ContentController {
 
   /** GET /:id */
   getById = asyncHandler(async (req, res) => {
-    const doc = await this.service.getById(req.params.id);
+    const doc = await this.service.getById(req.params.id, false);
     res.status(200).json(ApiResponse.success(doc, 'Fetched successfully'));
   });
 

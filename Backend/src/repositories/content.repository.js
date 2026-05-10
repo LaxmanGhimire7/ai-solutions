@@ -33,8 +33,8 @@ class ContentRepository {
     });
   }
 
-  async findById(id) {
-    return this.model.findOne({ _id: id, isActive: true }).lean();
+  async findById(id, extraFilter = {}) {
+    return this.model.findOne({ _id: id, isActive: true, ...extraFilter }).lean();
   }
 
   async findBySlug(slug) {

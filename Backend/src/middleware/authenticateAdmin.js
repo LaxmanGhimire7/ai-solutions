@@ -18,7 +18,7 @@ const authenticateAdmin = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (decoded.role !== 'admin') {
+    if (!['admin', 'superadmin'].includes(decoded.role)) {
       return res.status(403).json(ApiResponse.error('Insufficient permissions', 403));
     }
 

@@ -21,7 +21,7 @@ class InquiryRepository {
       filter.$or = [
         { name: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },
-        { company: { $regex: search, $options: 'i' } },
+        { companyName: { $regex: search, $options: 'i' } },
         { country: { $regex: search, $options: 'i' } },
         { jobTitle: { $regex: search, $options: 'i' } },
       ];
@@ -129,7 +129,7 @@ class InquiryRepository {
     return this.model
       .find({ isActive: true })
       .sort({ createdAt: -1 })
-      .select('name email phone company country jobTitle jobDetails status createdAt')
+      .select('name email phone companyName country jobTitle jobDetails status createdAt')
       .lean();
   }
 }

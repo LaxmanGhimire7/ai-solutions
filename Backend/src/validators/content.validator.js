@@ -17,6 +17,36 @@ const articleUpdate = articleCreate.fork(
   (field) => field.optional()
 );
 
+const serviceCreate = Joi.object({
+  title: Joi.string().trim().max(200).required(),
+  description: Joi.string().trim().max(3000).required(),
+  icon: Joi.string().trim().max(100).allow('').optional(),
+  imageUrl: Joi.string().trim().uri().allow('').optional(),
+  order: Joi.number().integer().min(0).optional(),
+  published: Joi.boolean().optional(),
+});
+
+const serviceUpdate = serviceCreate.fork(
+  ['title', 'description'],
+  (field) => field.optional()
+);
+
+const projectCreate = Joi.object({
+  title: Joi.string().trim().max(200).required(),
+  description: Joi.string().trim().max(5000).required(),
+  clientName: Joi.string().trim().max(150).allow('').optional(),
+  industry: Joi.string().trim().max(100).allow('').optional(),
+  imageUrl: Joi.string().trim().uri().allow('').optional(),
+  technologies: Joi.array().items(Joi.string().trim().max(50)).max(15).optional(),
+  outcome: Joi.string().trim().max(1000).allow('').optional(),
+  published: Joi.boolean().optional(),
+});
+
+const projectUpdate = projectCreate.fork(
+  ['title', 'description'],
+  (field) => field.optional()
+);
+
 // ─── Event ────────────────────────────────────────────────────────────────────
 const eventCreate = Joi.object({
   title: Joi.string().trim().max(200).required(),
@@ -71,6 +101,7 @@ const testimonialUpdate = testimonialCreate.fork(
 const contentQuery = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(50).default(20),
+  search: Joi.string().trim().max(100).allow('').optional(),
   sortBy: Joi.string().max(50).optional(),
   order: Joi.string().valid('asc', 'desc').default('desc'),
   category: Joi.string().trim().max(100).optional(),
@@ -94,6 +125,8 @@ const validate = (schema, source = 'body') => (req, res, next) => {
 
 module.exports = {
   articleCreate, articleUpdate,
+  serviceCreate, serviceUpdate,
+  projectCreate, projectUpdate,
   eventCreate, eventUpdate,
   galleryCreate, galleryUpdate,
   testimonialCreate, testimonialUpdate,

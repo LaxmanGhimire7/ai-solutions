@@ -77,7 +77,7 @@ class EmailUtil {
   /**
    * Pre-built template: new inquiry notification to admin
    */
-  newInquiryTemplate({ name, email, phone, company, country, jobTitle, jobDetails }) {
+  newInquiryTemplate({ name, email, phone, companyName, country, jobTitle, jobDetails }) {
     return {
       to: process.env.ADMIN_EMAIL,
       subject: `New Inquiry from ${name}`,
@@ -88,7 +88,7 @@ class EmailUtil {
             <tr><td style="padding: 8px; font-weight: 600; color: #374151;">Name</td><td style="padding: 8px;">${name}</td></tr>
             <tr style="background:#fff;"><td style="padding: 8px; font-weight: 600; color: #374151;">Email</td><td style="padding: 8px;">${email}</td></tr>
             <tr><td style="padding: 8px; font-weight: 600; color: #374151;">Phone</td><td style="padding: 8px;">${phone || '—'}</td></tr>
-            <tr style="background:#fff;"><td style="padding: 8px; font-weight: 600; color: #374151;">Company</td><td style="padding: 8px;">${company || '—'}</td></tr>
+            <tr style="background:#fff;"><td style="padding: 8px; font-weight: 600; color: #374151;">Company</td><td style="padding: 8px;">${companyName}</td></tr>
             <tr><td style="padding: 8px; font-weight: 600; color: #374151;">Country</td><td style="padding: 8px;">${country || '—'}</td></tr>
             <tr style="background:#fff;"><td style="padding: 8px; font-weight: 600; color: #374151;">Job Title</td><td style="padding: 8px;">${jobTitle}</td></tr>
             <tr><td style="padding: 8px; font-weight: 600; color: #374151; vertical-align: top;">Details</td><td style="padding: 8px;">${jobDetails}</td></tr>

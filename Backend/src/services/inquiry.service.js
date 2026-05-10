@@ -108,6 +108,10 @@ class InquiryService {
     return { total, newCount, weeklyData };
   }
 
+  async getWeeklyInquiries() {
+    return this.inquiryRepo.getWeeklyCounts(8);
+  }
+
   /**
    * Export all inquiries as CSV string (admin only).
    */
@@ -128,7 +132,7 @@ class InquiryService {
       escape(i.name),
       escape(i.email),
       escape(i.phone),
-      escape(i.company),
+      escape(i.companyName),
       escape(i.country),
       escape(i.jobTitle),
       escape(i.jobDetails),

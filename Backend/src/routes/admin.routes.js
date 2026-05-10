@@ -30,8 +30,17 @@ router.post('/login', loginLimiter, validate(loginSchema), adminController.login
 // One-time setup — seed first admin (works only when no admin exists)
 // ⚠️  Disable or remove this in production after initial setup
 router.post('/seed', validate(seedSchema), adminController.seedFirstAdmin);
+router.post('/register', validate(seedSchema), adminController.seedFirstAdmin);
+router.post('/logout', authenticateAdmin, (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Logout successful. Please remove the token on the client.',
+    data: {},
+  });
+});
 
 // Protected
 router.get('/profile', authenticateAdmin, adminController.getProfile);
+router.get('/me', authenticateAdmin, adminController.getProfile);
 
 module.exports = router;

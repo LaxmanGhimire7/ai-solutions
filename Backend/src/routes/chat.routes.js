@@ -11,11 +11,8 @@ const chatRepo = new ChatSessionRepository(ChatSessionModel);
 const chatService = new ChatService(chatRepo, socketUtil);
 const chatController = new ChatController(chatService);
 
-// Export service so index.js can wire Socket.io events
-module.exports.chatService = chatService;
-
 // Admin REST endpoints
 router.get('/sessions', authenticateAdmin, chatController.getSessions);
 router.get('/sessions/:id', authenticateAdmin, chatController.getSessionById);
 
-module.exports.router = router;
+module.exports = { router, chatService };

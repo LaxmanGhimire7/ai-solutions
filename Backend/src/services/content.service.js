@@ -32,6 +32,20 @@ class ContentService {
     if (query.category) filter.category = query.category;
     if (query.type) filter.type = query.type;
     if (query.tag) filter.tags = query.tag;
+    if (query.search) {
+      const safeSearch = query.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter.$or = [
+        { title: { $regex: safeSearch, $options: 'i' } },
+        { description: { $regex: safeSearch, $options: 'i' } },
+        { summary: { $regex: safeSearch, $options: 'i' } },
+        { content: { $regex: safeSearch, $options: 'i' } },
+        { quote: { $regex: safeSearch, $options: 'i' } },
+        { authorName: { $regex: safeSearch, $options: 'i' } },
+        { authorCompany: { $regex: safeSearch, $options: 'i' } },
+        { category: { $regex: safeSearch, $options: 'i' } },
+        { tags: { $regex: safeSearch, $options: 'i' } },
+      ];
+    }
 
     const sort = {};
     const sortBy = query.sortBy || 'createdAt';
@@ -40,8 +54,8 @@ class ContentService {
     return this.repo.findAll({ filter, page, limit, sort });
   }
 
-  async getById(id) {
-    const doc = await this.repo.findById(id);
+  async getById(id, adminView = false) {
+    const doc = await this.repo.findById(id, adminView ? {} : { published: true });
     if (!doc) {
       const err = new Error('Not found');
       err.statusCode = 404;

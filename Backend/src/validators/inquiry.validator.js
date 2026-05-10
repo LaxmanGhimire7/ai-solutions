@@ -10,11 +10,20 @@ const createSchema = Joi.object({
     'string.email': 'Please provide a valid email address',
     'any.required': 'Email is required',
   }),
-  phone: Joi.string().trim().max(20).allow('').optional(),
-  company: Joi.string().trim().max(100).allow('').optional(),
-  country: Joi.string().trim().max(100).allow('').optional(),
-  jobTitle: Joi.string().trim().max(100).required().messages({
+  phone: Joi.string().trim().max(30).required().messages({
+    'any.required': 'Phone is required',
+    'string.max': 'Phone cannot exceed 30 characters',
+  }),
+  companyName: Joi.string().trim().max(150).required().messages({
+    'any.required': 'Company name is required',
+    'string.max': 'Company name cannot exceed 150 characters',
+  }),
+  country: Joi.string().trim().max(100).required().messages({
+    'any.required': 'Country is required',
+  }),
+  jobTitle: Joi.string().trim().max(150).required().messages({
     'any.required': 'Job title is required',
+    'string.max': 'Job title cannot exceed 150 characters',
   }),
   jobDetails: Joi.string().trim().max(2000).required().messages({
     'any.required': 'Job details are required',

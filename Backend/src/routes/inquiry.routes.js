@@ -6,6 +6,7 @@ const InquiryRepository = require('../repositories/inquiry.repository');
 const InquiryService = require('../services/inquiry.service');
 const InquiryController = require('../controllers/inquiry.controller');
 const authenticateAdmin = require('../middleware/authenticateAdmin');
+const validateObjectId = require('../middleware/validateObjectId');
 const emailUtil = require('../utils/email');
 const socketUtil = require('../utils/socket');
 const {
@@ -42,8 +43,8 @@ router.post('/', submitLimiter, validate(createSchema), inquiryController.create
 router.get('/stats', authenticateAdmin, inquiryController.getDashboardStats);
 router.get('/export-csv', authenticateAdmin, inquiryController.exportCsv);
 router.get('/', authenticateAdmin, validate(querySchema, 'query'), inquiryController.getAll);
-router.get('/:id', authenticateAdmin, inquiryController.getById);
-router.patch('/:id/status', authenticateAdmin, validate(updateStatusSchema), inquiryController.updateStatus);
-router.delete('/:id', authenticateAdmin, inquiryController.delete);
+router.get('/:id', authenticateAdmin, validateObjectId(), inquiryController.getById);
+router.patch('/:id/status', authenticateAdmin, validateObjectId(), validate(updateStatusSchema), inquiryController.updateStatus);
+router.delete('/:id', authenticateAdmin, validateObjectId(), inquiryController.delete);
 
 module.exports = router;

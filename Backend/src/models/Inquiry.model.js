@@ -16,27 +16,27 @@ const inquirySchema = new mongoose.Schema(
     },
     phone: {
       type: String,
+      required: [true, 'Phone is required'],
       trim: true,
-      maxlength: [20, 'Phone cannot exceed 20 characters'],
-      default: '',
+      maxlength: [30, 'Phone cannot exceed 30 characters'],
     },
-    company: {
+    companyName: {
       type: String,
+      required: [true, 'Company name is required'],
       trim: true,
-      maxlength: [100, 'Company cannot exceed 100 characters'],
-      default: '',
+      maxlength: [150, 'Company name cannot exceed 150 characters'],
     },
     country: {
       type: String,
+      required: [true, 'Country is required'],
       trim: true,
       maxlength: [100, 'Country cannot exceed 100 characters'],
-      default: '',
     },
     jobTitle: {
       type: String,
       required: [true, 'Job title is required'],
       trim: true,
-      maxlength: [100, 'Job title cannot exceed 100 characters'],
+      maxlength: [150, 'Job title cannot exceed 150 characters'],
     },
     jobDetails: {
       type: String,
@@ -61,5 +61,6 @@ inquirySchema.index({ createdAt: -1 });
 inquirySchema.index({ email: 1, createdAt: -1 });
 inquirySchema.index({ status: 1, createdAt: -1 });
 inquirySchema.index({ country: 1 });
+inquirySchema.index({ companyName: 1 });
 
 module.exports = mongoose.model('Inquiry', inquirySchema);
