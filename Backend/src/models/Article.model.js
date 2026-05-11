@@ -51,7 +51,6 @@ const articleSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-articleSchema.index({ slug: 1 });
 articleSchema.index({ published: 1, publishedAt: -1 });
 articleSchema.index({ tags: 1 });
 
