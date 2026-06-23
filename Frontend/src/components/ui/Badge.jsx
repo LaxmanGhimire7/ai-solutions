@@ -1,6 +1,6 @@
 const variants = {
   default: 'bg-slate-100 text-slate-600',
-  accent: 'bg-indigo-50 text-indigo-600',
+  accent: 'bg-[#E95520]/10 text-[#E95520] border border-[#E95520]/20',
   success: 'bg-emerald-50 text-emerald-600',
 };
 

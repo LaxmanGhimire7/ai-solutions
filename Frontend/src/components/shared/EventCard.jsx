@@ -1,3 +1,4 @@
+import { ArrowUpRight, Clock3, MapPin } from 'lucide-react';
 import Badge from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
 
@@ -7,19 +8,32 @@ const EventCard = ({ title, date, time, location, description, type }) => {
   const month = parsedDate.toLocaleDateString('en-GB', { month: 'short' });
 
   return (
-    <Card hoverable className="flex flex-col gap-5 sm:flex-row">
-      <div className="flex h-20 w-20 shrink-0 flex-col items-center justify-center rounded-2xl bg-slate-50 text-center">
-        <span className="text-xl font-semibold text-slate-900">{day}</span>
-        <span className="text-xs font-medium uppercase text-slate-400">{month}</span>
+    <Card hoverable className="group flex flex-col gap-6 sm:flex-row sm:items-center">
+      <div className="flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-xl border border-[#E95520]/25 bg-[#E95520]/10 text-center">
+        <span className="text-2xl font-semibold text-[#F37A49]">{day}</span>
+        <span className="mt-1 text-xs font-semibold uppercase text-[#E95520]">{month}</span>
       </div>
-      <div>
-        <Badge variant={type === 'Upcoming' ? 'accent' : 'default'}>{type}</Badge>
-        <h3 className="mt-3 text-lg font-semibold text-slate-900">{title}</h3>
-        <p className="mt-2 text-sm text-slate-500">
-          {time} · {location}
-        </p>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-3">
+          <Badge variant={type === 'Upcoming' ? 'accent' : 'default'}>{type}</Badge>
+          <span className="text-xs text-slate-400">{parsedDate.getFullYear()}</span>
+        </div>
+        <h3 className="mt-3 text-lg font-semibold text-slate-950">{title}</h3>
+        <div className="mt-3 flex flex-wrap gap-4 text-sm text-slate-500">
+          <span className="inline-flex items-center gap-1.5">
+            <Clock3 className="h-4 w-4" aria-hidden="true" />
+            {time}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <MapPin className="h-4 w-4" aria-hidden="true" />
+            {location}
+          </span>
+        </div>
         <p className="mt-3 text-sm leading-relaxed text-slate-500">{description}</p>
       </div>
+      <span className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-400 transition-colors group-hover:border-[#E95520]/50 group-hover:text-[#F37A49] sm:flex">
+        <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+      </span>
     </Card>
   );
 };

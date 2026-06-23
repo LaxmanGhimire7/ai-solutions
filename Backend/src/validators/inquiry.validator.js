@@ -47,7 +47,7 @@ const querySchema = Joi.object({
   search: Joi.string().trim().max(100).allow('').optional(),
   status: Joi.string().valid('new', 'read', 'replied', 'archived').optional(),
   sortBy: Joi.string()
-    .valid('createdAt', 'name', 'email', 'country', 'status')
+    .valid('createdAt', 'name', 'email', 'companyName', 'country', 'status')
     .default('createdAt'),
   order: Joi.string().valid('asc', 'desc').default('desc'),
 });

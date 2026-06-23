@@ -17,6 +17,7 @@ const Contact = lazy(() => import('@/pages/Contact'));
 const AdminLogin = lazy(() => import('@/pages/AdminLogin'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const ChatSupport = lazy(() => import('@/pages/ChatSupport'));
+const ContentManager = lazy(() => import('@/pages/ContentManager'));
 
 const PageFallback = () => (
   <div className="mx-auto max-w-7xl px-4 py-28 sm:px-6 lg:px-8">
@@ -26,14 +27,14 @@ const PageFallback = () => (
 );
 
 const PublicShell = () => (
-  <>
+  <div className="public-theme">
     <PublicNavbar />
-    <main className="pt-16">
+    <main className="overflow-x-clip pt-[76px]">
       <Outlet />
     </main>
     <ChatbotWidget />
     <Footer />
-  </>
+  </div>
 );
 
 const LoginRoute = () => {
@@ -64,6 +65,7 @@ const App = () => {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="content" element={<ContentManager />} />
           <Route path="chat" element={<ChatSupport />} />
         </Route>
 

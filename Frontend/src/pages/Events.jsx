@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
-import Badge from '@/components/ui/Badge';
-import Button from '@/components/ui/Button';
+import { CalendarRange } from 'lucide-react';
 import EventCard from '@/components/shared/EventCard';
+import PageHero from '@/components/shared/PageHero';
+import SectionHeading from '@/components/shared/SectionHeading';
 import { events } from '@/data/siteData';
 
 const Events = () => {
@@ -9,37 +10,53 @@ const Events = () => {
   const visibleEvents = useMemo(() => events.filter((event) => event.type === tab), [tab]);
 
   return (
-    <section className="bg-white py-20 md:py-28">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl">
-          <Badge variant="accent">Events</Badge>
-          <h1 className="mt-5 text-5xl font-bold tracking-tight text-slate-900 md:text-7xl">Company Events</h1>
-          <p className="mt-6 text-base leading-relaxed text-slate-600">
-            Upcoming and past events for workshops, showcases, and client-focused sessions.
-          </p>
-        </div>
+    <>
+      <PageHero
+        eyebrow="Events"
+        title="Workshops and sessions for practical digital progress."
+        description="Discover upcoming and past events focused on client communication, web systems, and service operations."
+        icon={CalendarRange}
+        highlights={['Focused digital workshops', 'Client-facing demonstrations', 'Past event archive']}
+      />
 
-        <div className="mt-10 flex gap-3">
-          {['Upcoming', 'Past'].map((item) => (
-            <Button
-              key={item}
-              variant={tab === item ? 'primary' : 'secondary'}
-              size="sm"
-              onClick={() => setTab(item)}
-              aria-pressed={tab === item}
-            >
-              {item}
-            </Button>
-          ))}
-        </div>
+      <section className="bg-white py-20 md:py-28">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            eyebrow="Event schedule"
+            title="Explore company events"
+            description="Switch between upcoming sessions and the archive of completed activities."
+          />
 
-        <div className="mt-12 space-y-5">
-          {visibleEvents.map((event) => (
-            <EventCard key={event.title} {...event} />
-          ))}
+          <div className="mt-10 inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1">
+            {['Upcoming', 'Past'].map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setTab(item)}
+                aria-pressed={tab === item}
+                className={`rounded-lg px-5 py-2.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/20 ${
+                  tab === item ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-10 space-y-5">
+            {visibleEvents.map((event) => (
+              <EventCard key={event.title} {...event} />
+            ))}
+          </div>
+
+          {visibleEvents.length === 0 && (
+            <div className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 px-6 py-14 text-center text-sm text-slate-500">
+              No {tab.toLowerCase()} events are currently available.
+            </div>
+          )}
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 };
 

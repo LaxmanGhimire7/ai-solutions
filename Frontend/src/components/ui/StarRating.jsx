@@ -9,7 +9,7 @@ const StarRating = ({ rating, maxStars = 5 }) => {
         return (
           <Star
             key={index}
-            className={`h-4 w-4 ${filled ? 'fill-indigo-400 text-indigo-400' : 'text-slate-200'}`}
+          className={`h-4 w-4 ${filled ? 'fill-[#E95520] text-[#E95520]' : 'text-slate-200'}`}
             aria-hidden="true"
           />
         );

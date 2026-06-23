@@ -1,5 +1,6 @@
 require('dotenv').config();
 const http = require('http');
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -12,15 +13,20 @@ const { Server } = require('socket.io');
 const routes = require('./routes');
 const errorHandler = require('./middleware/errorHandler');
 const socketUtil = require('./utils/socket');
+const emailUtil = require('./utils/email');
 
 const app = express();
 const server = http.createServer(app);
 const enableRealtimeChat = process.env.ENABLE_REALTIME_CHAT === 'true';
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 if (enableRealtimeChat) {
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
   },
 });
@@ -92,9 +98,18 @@ io.on('connection', (socket) => {
 });
 }
 
-app.use(helmet());
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true }));
-app.use(express.json({ limit: '10kb' }));
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+}));
+app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(mongoSanitize());
 app.use(xss());
@@ -106,6 +121,7 @@ app.use(rateLimit({
   legacyHeaders: false,
 }));
 
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 app.use('/api', routes);
 
 app.get('/health', (req, res) => {
@@ -127,8 +143,11 @@ const PORT = process.env.PORT || 5000;
 
 mongoose
   .connect(process.env.MONGODB_URI)
-  .then(() => {
+  .then(async () => {
     console.log('✅ MongoDB connected');
+    await emailUtil.verify().catch((err) => {
+      console.error('[email] SMTP verification failed:', err.message);
+    });
     server.listen(PORT, () => {
       console.log('🚀 Server running on http://localhost:' + PORT);
     });

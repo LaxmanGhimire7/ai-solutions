@@ -77,7 +77,7 @@ const ChatbotWidget = () => {
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-[#E95520]/10 hover:text-[#E95520] focus:outline-none focus:ring-2 focus:ring-[#E95520]/20"
               aria-label="Close chatbot"
             >
               <X className="h-4 w-4" aria-hidden="true" />
@@ -117,7 +117,7 @@ const ChatbotWidget = () => {
                   key={question}
                   type="button"
                   onClick={() => submitMessage(question)}
-                  className="shrink-0 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-indigo-50 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className="shrink-0 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-[#E95520]/10 hover:text-[#E95520] focus:outline-none focus:ring-2 focus:ring-[#E95520]/20"
                 >
                   {question}
                 </button>
@@ -150,7 +150,7 @@ const ChatbotWidget = () => {
       <button
         type="button"
         onClick={isOpen ? () => setIsOpen(false) : openWidget}
-        className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-indigo-500 text-white shadow-sm transition-colors hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:ring-offset-2"
+        className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#E95520] text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#C94316] focus:outline-none focus:ring-2 focus:ring-[#E95520]/20 focus:ring-offset-2"
         aria-label={isOpen ? 'Close chatbot' : 'Open chatbot'}
         aria-expanded={isOpen}
       >

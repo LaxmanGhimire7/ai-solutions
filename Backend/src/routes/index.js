@@ -4,6 +4,7 @@ router.use('/admin', require('./admin.routes'));
 router.use('/auth', require('./admin.routes'));
 router.use('/inquiries', require('./inquiry.routes'));
 router.use('/dashboard', require('./dashboard.routes'));
+router.use('/uploads', require('./upload.routes'));
 router.use('/chatbot', require('./chatbot.routes'));
 router.use('/content', require('./content.routes'));
 router.use('/services', require('./service.routes'));

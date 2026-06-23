@@ -36,7 +36,7 @@ class InquiryService {
   async getAll(query = {}) {
     const page = Math.max(1, parseInt(query.page, 10) || 1);
     const limit = Math.min(50, Math.max(1, parseInt(query.limit, 10) || 20));
-    const sortBy = ['createdAt', 'name', 'email', 'country', 'status'].includes(query.sortBy)
+    const sortBy = ['createdAt', 'name', 'email', 'companyName', 'country', 'status'].includes(query.sortBy)
       ? query.sortBy
       : 'createdAt';
     const order = query.order === 'asc' ? 'asc' : 'desc';

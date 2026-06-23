@@ -25,7 +25,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
               type="button"
               onClick={onClose}
               aria-label="Close modal"
-              className="absolute right-4 top-4 rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="absolute right-4 top-4 rounded-lg p-2 text-slate-400 transition-colors hover:bg-[#E95520]/10 hover:text-[#E95520] focus:outline-none focus:ring-2 focus:ring-[#E95520]/20"
             >
               <X className="h-5 w-5" />
             </button>
