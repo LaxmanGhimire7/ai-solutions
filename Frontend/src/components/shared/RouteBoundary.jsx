@@ -78,9 +78,9 @@ class RouteErrorBoundary extends Component {
   }
 }
 
-const RouteBoundary = ({ children, variant = 'public', resetKey }) => (
+const RouteBoundary = ({ children, variant = 'public', resetKey, suspense = true }) => (
   <RouteErrorBoundary key={resetKey} variant={variant}>
-    <Suspense fallback={<RouteLoading variant={variant} />}>{children}</Suspense>
+    {suspense ? <Suspense fallback={<RouteLoading variant={variant} />}>{children}</Suspense> : children}
   </RouteErrorBoundary>
 );
 

@@ -1,12 +1,4 @@
 export const routeLoaders = {
-  '/': () => import('@/pages/Home'),
-  '/services': () => import('@/pages/Services'),
-  '/projects': () => import('@/pages/Projects'),
-  '/articles': () => import('@/pages/Articles'),
-  '/events': () => import('@/pages/Events'),
-  '/gallery': () => import('@/pages/Gallery'),
-  '/contact': () => import('@/pages/Contact'),
-  '/admin/login': () => import('@/pages/AdminLogin'),
   '/admin/dashboard': () => import('@/pages/Dashboard'),
   '/admin/content': () => import('@/pages/ContentManager'),
   '/admin/chat': () => import('@/pages/ChatSupport'),

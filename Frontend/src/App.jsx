@@ -1,4 +1,4 @@
-import { lazy, useEffect, useLayoutEffect } from 'react';
+import { lazy, useLayoutEffect } from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import PublicNavbar from '@/components/layout/PublicNavbar';
 import Footer from '@/components/layout/Footer';
@@ -6,21 +6,19 @@ import AdminLayout from '@/components/layout/AdminLayout';
 import ChatbotWidget from '@/components/shared/ChatbotWidget';
 import RouteBoundary from '@/components/shared/RouteBoundary';
 import { useAuth } from '@/hooks/useAuth';
-import { routeLoaders, scheduleRoutePreload } from '@/utils/routePreload';
+import { routeLoaders } from '@/utils/routePreload';
+import Home from '@/pages/Home';
+import Services from '@/pages/Services';
+import Projects from '@/pages/Projects';
+import Articles from '@/pages/Articles';
+import Events from '@/pages/Events';
+import Gallery from '@/pages/Gallery';
+import Contact from '@/pages/Contact';
+import AdminLogin from '@/pages/AdminLogin';
 
-const Home = lazy(routeLoaders['/']);
-const Services = lazy(routeLoaders['/services']);
-const Projects = lazy(routeLoaders['/projects']);
-const Articles = lazy(routeLoaders['/articles']);
-const Events = lazy(routeLoaders['/events']);
-const Gallery = lazy(routeLoaders['/gallery']);
-const Contact = lazy(routeLoaders['/contact']);
-const AdminLogin = lazy(routeLoaders['/admin/login']);
 const Dashboard = lazy(routeLoaders['/admin/dashboard']);
 const ChatSupport = lazy(routeLoaders['/admin/chat']);
 const ContentManager = lazy(routeLoaders['/admin/content']);
-
-const publicRoutes = ['/', '/services', '/projects', '/articles', '/events', '/gallery', '/contact'];
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -35,13 +33,11 @@ const ScrollToTop = () => {
 const PublicShell = () => {
   const location = useLocation();
 
-  useEffect(() => scheduleRoutePreload(publicRoutes), []);
-
   return (
     <div className="public-theme">
       <PublicNavbar />
       <main className="min-h-[calc(100vh-76px)] overflow-x-clip pt-[76px]">
-        <RouteBoundary variant="public" resetKey={location.pathname}>
+        <RouteBoundary variant="public" resetKey={location.pathname} suspense={false}>
           <Outlet />
         </RouteBoundary>
       </main>
@@ -79,7 +75,7 @@ const App = () => {
         <Route
           path="/admin/login"
           element={
-            <RouteBoundary variant="login" resetKey="admin-login">
+            <RouteBoundary variant="login" resetKey="admin-login" suspense={false}>
               <LoginRoute />
             </RouteBoundary>
           }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   ArrowLeft,
@@ -14,7 +14,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import Button from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
-import { preloadRoute } from '@/utils/routePreload';
 
 const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -26,10 +25,6 @@ const AdminLogin = () => {
   } = useForm();
   const { login } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    preloadRoute('/admin/dashboard');
-  }, []);
 
   const onSubmit = async (data) => {
     setIsLoading(true);
