@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
@@ -28,7 +28,7 @@ const stackCards = [
     eyebrow: 'Client inquiry management',
     title: 'Turn every enquiry into clear, trackable work.',
     description: 'Collect useful requirements, organise incoming requests, update statuses, and export records without relying on scattered email threads.',
-    image: '/images/inquiry-dashboard-studio.png',
+    image: '/images/inquiry-dashboard-studio.jpg',
     tone: 'orange',
     features: [
       { icon: Clock3, value: '24/7', label: 'Inquiry capture' },
@@ -40,7 +40,7 @@ const stackCards = [
     eyebrow: 'Content publishing',
     title: 'Keep services, articles, projects, and events current.',
     description: 'A focused admin workspace lets the team publish company content, upload images, and control what appears publicly.',
-    image: '/images/content-chat-studio.png',
+    image: '/images/content-chat-studio.jpg',
     tone: 'cream',
     features: [
       { icon: FileText, value: '6', label: 'Content types' },
@@ -52,7 +52,7 @@ const stackCards = [
     eyebrow: 'Support and insight',
     title: 'Help visitors quickly and understand what they need.',
     description: 'Rule-based support answers common questions while the dashboard reveals inquiry trends, service interest, and follow-up progress.',
-    image: '/images/orange-platform-hero.png',
+    image: '/images/orange-platform-hero.jpg',
     tone: 'black',
     features: [
       { icon: MessageSquareText, value: 'FAQ', label: 'Rule-based help' },
@@ -65,35 +65,43 @@ const stackCards = [
 const Home = () => {
   const stackRef = useRef(null);
 
-  useLayoutEffect(() => {
-    const context = gsap.context(() => {
-      const cards = gsap.utils.toArray('.stack-card');
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
 
-      cards.forEach((card, index) => {
-        gsap.fromTo(
-          card,
-          {
-            y: 100,
-            scale: 0.94,
-            rotate: index % 2 === 0 ? -1.2 : 1.2,
-          },
-          {
-            y: 0,
-            scale: 1,
-            rotate: 0,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: card,
-              start: 'top 90%',
-              end: 'top 22%',
-              scrub: 1,
+    let context;
+    const frame = window.requestAnimationFrame(() => {
+      context = gsap.context(() => {
+        const cards = gsap.utils.toArray('.stack-card');
+
+        cards.forEach((card, index) => {
+          gsap.fromTo(
+            card,
+            {
+              y: 70,
+              scale: 0.97,
+              rotate: index % 2 === 0 ? -0.6 : 0.6,
             },
-          }
-        );
-      });
-    }, stackRef);
+            {
+              y: 0,
+              scale: 1,
+              rotate: 0,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: card,
+                start: 'top 92%',
+                end: 'top 28%',
+                scrub: 0.5,
+              },
+            }
+          );
+        });
+      }, stackRef);
+    });
 
-    return () => context.revert();
+    return () => {
+      window.cancelAnimationFrame(frame);
+      context?.revert();
+    };
   }, []);
 
   return (
@@ -101,9 +109,14 @@ const Home = () => {
       <section className="editorial-grid relative min-h-[calc(100vh-76px)] overflow-hidden bg-black">
         <div className="absolute inset-y-0 right-0 hidden w-[58%] lg:block">
           <img
-            src="/images/orange-platform-hero.png"
+            src="/images/orange-platform-hero.jpg"
             alt="AI-Solutions dashboard platform"
-            className="h-full w-full object-cover object-center opacity-85"
+            width="1774"
+            height="887"
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+            className="h-full w-full bg-black object-cover object-center opacity-85"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black via-black/25 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />
@@ -232,7 +245,15 @@ const Home = () => {
                     </div>
 
                     <div className="overflow-hidden rounded-2xl border border-black/15 bg-black">
-                      <img src={card.image} alt="" className="aspect-[4/3] h-full w-full object-cover" />
+                      <img
+                        src={card.image}
+                        alt=""
+                        width="1448"
+                        height="1086"
+                        loading="lazy"
+                        decoding="async"
+                        className="aspect-[4/3] h-full w-full bg-black object-cover"
+                      />
                     </div>
                   </div>
                 </article>

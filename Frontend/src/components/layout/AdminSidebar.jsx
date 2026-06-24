@@ -1,6 +1,7 @@
 import { Link, NavLink } from 'react-router-dom';
 import { BarChart3, ExternalLink, FileText, HelpCircle, LogOut, Plus } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { preloadRoute } from '@/utils/routePreload';
 
 const items = [
   { label: 'Analytics', to: '/admin/dashboard', icon: BarChart3 },
@@ -34,6 +35,8 @@ const AdminSidebar = () => {
               <NavLink
                 key={item.label}
                 to={item.to}
+                onPointerEnter={() => preloadRoute(item.to)}
+                onFocus={() => preloadRoute(item.to)}
                 className={({ isActive }) =>
                   `flex items-center gap-4 rounded-xl border px-4 py-3 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#E95520]/20 ${
                     isActive

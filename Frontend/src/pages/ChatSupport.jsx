@@ -11,7 +11,6 @@ import {
   Send,
   Star,
   Trash2,
-  UserRound,
   Wifi,
   WifiOff,
 } from 'lucide-react';

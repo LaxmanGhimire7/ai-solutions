@@ -1,12 +1,20 @@
 import { useEffect } from 'react';
-import { Link, Navigate, Outlet } from 'react-router-dom';
+import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import AdminSidebar from './AdminSidebar';
+import RouteBoundary from '@/components/shared/RouteBoundary';
 import { useAuth } from '@/hooks/useAuth';
 import { connectAdmin, disconnectSocket, joinAdmin } from '@/api/chat';
+import { scheduleRoutePreload } from '@/utils/routePreload';
 
 const AdminLayout = () => {
   const { isAuthenticated, logout, token } = useAuth();
+  const location = useLocation();
+
+  useEffect(
+    () => scheduleRoutePreload(['/admin/dashboard', '/admin/content', '/admin/chat']),
+    []
+  );
 
   useEffect(() => {
     if (!isAuthenticated || !token) return undefined;
@@ -48,7 +56,9 @@ const AdminLayout = () => {
         </div>
       </header>
       <main className="min-h-screen lg:ml-64">
-        <Outlet />
+        <RouteBoundary variant="admin" resetKey={location.pathname}>
+          <Outlet />
+        </RouteBoundary>
       </main>
     </div>
   );

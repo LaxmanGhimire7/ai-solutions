@@ -1,41 +1,55 @@
-import { lazy, Suspense } from 'react';
-import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { lazy, useEffect, useLayoutEffect } from 'react';
+import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import PublicNavbar from '@/components/layout/PublicNavbar';
 import Footer from '@/components/layout/Footer';
 import AdminLayout from '@/components/layout/AdminLayout';
 import ChatbotWidget from '@/components/shared/ChatbotWidget';
-import Skeleton from '@/components/ui/Skeleton';
+import RouteBoundary from '@/components/shared/RouteBoundary';
 import { useAuth } from '@/hooks/useAuth';
+import { routeLoaders, scheduleRoutePreload } from '@/utils/routePreload';
 
-const Home = lazy(() => import('@/pages/Home'));
-const Services = lazy(() => import('@/pages/Services'));
-const Projects = lazy(() => import('@/pages/Projects'));
-const Articles = lazy(() => import('@/pages/Articles'));
-const Events = lazy(() => import('@/pages/Events'));
-const Gallery = lazy(() => import('@/pages/Gallery'));
-const Contact = lazy(() => import('@/pages/Contact'));
-const AdminLogin = lazy(() => import('@/pages/AdminLogin'));
-const Dashboard = lazy(() => import('@/pages/Dashboard'));
-const ChatSupport = lazy(() => import('@/pages/ChatSupport'));
-const ContentManager = lazy(() => import('@/pages/ContentManager'));
+const Home = lazy(routeLoaders['/']);
+const Services = lazy(routeLoaders['/services']);
+const Projects = lazy(routeLoaders['/projects']);
+const Articles = lazy(routeLoaders['/articles']);
+const Events = lazy(routeLoaders['/events']);
+const Gallery = lazy(routeLoaders['/gallery']);
+const Contact = lazy(routeLoaders['/contact']);
+const AdminLogin = lazy(routeLoaders['/admin/login']);
+const Dashboard = lazy(routeLoaders['/admin/dashboard']);
+const ChatSupport = lazy(routeLoaders['/admin/chat']);
+const ContentManager = lazy(routeLoaders['/admin/content']);
 
-const PageFallback = () => (
-  <div className="mx-auto max-w-7xl px-4 py-28 sm:px-6 lg:px-8">
-    <Skeleton className="h-10 w-64" />
-    <Skeleton className="mt-6 h-40 w-full" />
-  </div>
-);
+const publicRoutes = ['/', '/services', '/projects', '/articles', '/events', '/gallery', '/contact'];
 
-const PublicShell = () => (
-  <div className="public-theme">
-    <PublicNavbar />
-    <main className="overflow-x-clip pt-[76px]">
-      <Outlet />
-    </main>
-    <ChatbotWidget />
-    <Footer />
-  </div>
-);
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
+
+const PublicShell = () => {
+  const location = useLocation();
+
+  useEffect(() => scheduleRoutePreload(publicRoutes), []);
+
+  return (
+    <div className="public-theme">
+      <PublicNavbar />
+      <main className="min-h-[calc(100vh-76px)] overflow-x-clip pt-[76px]">
+        <RouteBoundary variant="public" resetKey={location.pathname}>
+          <Outlet />
+        </RouteBoundary>
+      </main>
+      <ChatbotWidget />
+      <Footer />
+    </div>
+  );
+};
 
 const LoginRoute = () => {
   const { isAuthenticated } = useAuth();
@@ -49,7 +63,8 @@ const LoginRoute = () => {
 
 const App = () => {
   return (
-    <Suspense fallback={<PageFallback />}>
+    <>
+      <ScrollToTop />
       <Routes>
         <Route element={<PublicShell />}>
           <Route path="/" element={<Home />} />
@@ -61,7 +76,14 @@ const App = () => {
           <Route path="/contact" element={<Contact />} />
         </Route>
 
-        <Route path="/admin/login" element={<LoginRoute />} />
+        <Route
+          path="/admin/login"
+          element={
+            <RouteBoundary variant="login" resetKey="admin-login">
+              <LoginRoute />
+            </RouteBoundary>
+          }
+        />
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
@@ -71,7 +93,7 @@ const App = () => {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </Suspense>
+    </>
   );
 };
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Edit3, FileText, Image, ImagePlus, LayoutGrid, Plus, Search, Trash2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
@@ -138,7 +138,7 @@ const ContentManager = () => {
 
   const fields = useMemo(() => fieldConfig[activeType], [activeType]);
 
-  const loadContent = async () => {
+  const loadContent = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await getAdminContent(activeType, {
@@ -154,11 +154,11 @@ const ContentManager = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [activeType, search]);
 
   useEffect(() => {
     loadContent();
-  }, [activeType, search]);
+  }, [loadContent]);
 
   const openCreateModal = () => {
     setEditingItem(null);

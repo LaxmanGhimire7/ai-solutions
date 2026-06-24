@@ -1,14 +1,32 @@
 import { createContext, useEffect, useMemo, useState } from 'react';
 import { login as loginRequest, logout as logoutRequest } from '@/api/auth';
+import { isTokenExpired, readStoredJson } from '@/utils/storage';
 
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(() => localStorage.getItem('ai_solutions_token'));
-  const [admin, setAdmin] = useState(() => {
-    const stored = localStorage.getItem('ai_solutions_admin');
-    return stored ? JSON.parse(stored) : null;
+  const [token, setToken] = useState(() => {
+    const storedToken = localStorage.getItem('ai_solutions_token');
+
+    if (isTokenExpired(storedToken)) {
+      localStorage.removeItem('ai_solutions_token');
+      localStorage.removeItem('ai_solutions_admin');
+      return null;
+    }
+
+    return storedToken;
   });
+  const [admin, setAdmin] = useState(() => readStoredJson('ai_solutions_admin'));
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      setToken(null);
+      setAdmin(null);
+    };
+
+    window.addEventListener('ai-solutions:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('ai-solutions:unauthorized', handleUnauthorized);
+  }, []);
 
   useEffect(() => {
     if (token) {
@@ -37,9 +55,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    await logoutRequest();
     setToken(null);
     setAdmin(null);
+    await logoutRequest();
   };
 
   const value = useMemo(

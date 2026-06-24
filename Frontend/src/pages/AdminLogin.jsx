@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   ArrowLeft,
@@ -14,6 +14,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import Button from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
+import { preloadRoute } from '@/utils/routePreload';
 
 const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -25,6 +26,10 @@ const AdminLogin = () => {
   } = useForm();
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    preloadRoute('/admin/dashboard');
+  }, []);
 
   const onSubmit = async (data) => {
     setIsLoading(true);
@@ -46,10 +51,17 @@ const AdminLogin = () => {
 
       <div className="relative mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl items-center">
         <div className="grid w-full overflow-hidden rounded-2xl border border-white/10 bg-[#06100e]/90 shadow-[0_30px_90px_rgba(0,0,0,0.48)] backdrop-blur-xl lg:grid-cols-[0.92fr_1.08fr]">
-          <section
-            className="relative hidden min-h-[690px] overflow-hidden border-r border-white/10 bg-cover bg-[70%_center] p-10 lg:flex lg:flex-col lg:justify-between"
-            style={{ backgroundImage: "url('/images/orange-platform-hero.png')" }}
-          >
+          <section className="relative hidden min-h-[690px] overflow-hidden border-r border-white/10 bg-black p-10 lg:flex lg:flex-col lg:justify-between">
+            <img
+              src="/images/orange-platform-hero.jpg"
+              alt=""
+              width="1774"
+              height="887"
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
+              className="absolute inset-0 h-full w-full object-cover object-[70%_center]"
+            />
             <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(2,7,6,0.98)_0%,rgba(2,7,6,0.88)_46%,rgba(2,7,6,0.35)_100%)]" />
             <div className="absolute inset-0 bg-gradient-to-t from-[#020706] via-transparent to-transparent" />
 

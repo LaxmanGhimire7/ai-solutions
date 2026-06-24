@@ -57,6 +57,12 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('ai_solutions_token');
+      localStorage.removeItem('ai_solutions_admin');
+      window.dispatchEvent(new Event('ai-solutions:unauthorized'));
+    }
+
     if (error.code === 'ECONNABORTED') {
       return Promise.reject(
         new Error('The server took too long to respond. Please try again in a moment.')

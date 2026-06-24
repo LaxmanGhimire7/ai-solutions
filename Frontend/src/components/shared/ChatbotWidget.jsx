@@ -22,6 +22,7 @@ import {
   startCustomerChat,
   submitChatRating,
 } from '@/api/chat';
+import { readStoredJson } from '@/utils/storage';
 
 const SESSION_KEY = 'ai_solutions_chat_session';
 const PROFILE_KEY = 'ai_solutions_chat_profile';
@@ -54,10 +55,9 @@ const ChatbotWidget = () => {
   const [sessionRating, setSessionRating] = useState(null);
   const [rating, setRating] = useState(0);
   const [ratingComment, setRatingComment] = useState('');
-  const [profile, setProfile] = useState(() => {
-    const stored = localStorage.getItem(PROFILE_KEY);
-    return stored ? JSON.parse(stored) : { customerName: '', customerEmail: '' };
-  });
+  const [profile, setProfile] = useState(() =>
+    readStoredJson(PROFILE_KEY, { customerName: '', customerEmail: '' })
+  );
   const [profileForm, setProfileForm] = useState(profile);
   const [faqMessages, setFaqMessages] = useState([
     {
@@ -175,6 +175,8 @@ const ChatbotWidget = () => {
       disconnectSocket();
       setIsConnected(false);
     };
+    // The socket lifecycle is intentionally tied to the active session identity.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, mode, sessionId]);
 
   useEffect(() => {

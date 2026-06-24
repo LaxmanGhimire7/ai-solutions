@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import { preloadRoute } from '@/utils/routePreload';
 
 const links = [
   { label: 'Services', to: '/services' },
@@ -19,6 +20,8 @@ const PublicNavbar = () => {
       <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link
           to="/"
+          onPointerEnter={() => preloadRoute('/')}
+          onFocus={() => preloadRoute('/')}
           className="flex items-center gap-3 font-semibold text-[#F5ECE6] focus:outline-none focus:ring-2 focus:ring-[#E95520]/30"
         >
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E95520] text-sm font-semibold text-white">
@@ -32,6 +35,8 @@ const PublicNavbar = () => {
             <NavLink
               key={link.to}
               to={link.to}
+              onPointerEnter={() => preloadRoute(link.to)}
+              onFocus={() => preloadRoute(link.to)}
               className={({ isActive }) =>
                 `rounded-md px-4 py-2.5 text-sm font-medium transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-[#E95520]/20 ${
                   isActive ? 'bg-[#E95520] text-white' : 'text-[#A89D96]'
@@ -43,7 +48,12 @@ const PublicNavbar = () => {
           ))}
         </nav>
 
-        <Link to="/contact" className="hidden md:block">
+        <Link
+          to="/contact"
+          onPointerEnter={() => preloadRoute('/contact')}
+          onFocus={() => preloadRoute('/contact')}
+          className="hidden md:block"
+        >
           <Button size="sm">
             Request Callback
             <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
@@ -68,6 +78,8 @@ const PublicNavbar = () => {
                 key={link.to}
                 to={link.to}
                 onClick={() => setOpen(false)}
+                onPointerEnter={() => preloadRoute(link.to)}
+                onFocus={() => preloadRoute(link.to)}
                 className={({ isActive }) =>
                   `rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
                     isActive ? 'bg-[#E95520] text-white' : 'text-[#C8BDB6] hover:bg-white/[0.06]'
