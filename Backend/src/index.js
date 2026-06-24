@@ -18,9 +18,10 @@ const emailUtil = require('./utils/email');
 const app = express();
 const server = http.createServer(app);
 const enableRealtimeChat = process.env.ENABLE_REALTIME_CHAT === 'true';
+const normaliseOrigin = (origin) => origin.trim().replace(/\/+$/, '');
 const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
   .split(',')
-  .map((origin) => origin.trim())
+  .map(normaliseOrigin)
   .filter(Boolean);
 
 if (enableRealtimeChat) {
@@ -101,11 +102,13 @@ io.on('connection', (socket) => {
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(normaliseOrigin(origin))) {
       return callback(null, true);
     }
 
-    return callback(new Error('Not allowed by CORS'));
+    const error = new Error(`Origin ${origin} is not allowed by CORS`);
+    error.statusCode = 403;
+    return callback(error);
   },
   credentials: true,
 }));

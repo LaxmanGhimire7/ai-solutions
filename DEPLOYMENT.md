@@ -20,7 +20,7 @@ NODE_VERSION=20
 MONGODB_URI=your-mongodb-atlas-connection-string
 JWT_SECRET=use-a-long-random-secret
 JWT_EXPIRES_IN=7d
-CLIENT_URL=http://localhost:5173,https://your-vercel-app.vercel.app
+CLIENT_URL=http://localhost:5173,https://ai-solutions-laxman.vercel.app
 ENABLE_REALTIME_CHAT=false
 
 ADMIN_EMAIL=your-admin-email@gmail.com
@@ -72,13 +72,13 @@ Deploy the frontend, then copy the final Vercel URL.
 Go back to Render and update:
 
 ```env
-CLIENT_URL=https://your-vercel-app.vercel.app
+CLIENT_URL=https://ai-solutions-laxman.vercel.app
 ```
 
 For local testing plus deployed frontend:
 
 ```env
-CLIENT_URL=http://localhost:5173,https://your-vercel-app.vercel.app
+CLIENT_URL=http://localhost:5173,https://ai-solutions-laxman.vercel.app
 ```
 
 Restart the Render service after changing environment variables.
