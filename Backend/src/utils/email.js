@@ -36,6 +36,8 @@ class EmailUtil {
       lastVerifiedAt: null,
       lastSentAt: null,
       lastErrorAt: null,
+      lastErrorCode: null,
+      lastErrorResponseCode: null,
     };
     this.transporter = this.createTransporter();
     this.status.configured = Boolean(this.transporter);
@@ -119,10 +121,14 @@ class EmailUtil {
       await this.transporter.verify();
       this.status.verified = true;
       this.status.lastVerifiedAt = new Date().toISOString();
+      this.status.lastErrorCode = null;
+      this.status.lastErrorResponseCode = null;
       console.log(`[email] SMTP ready: ${process.env.SMTP_HOST}:${process.env.SMTP_PORT}`);
     } catch (err) {
       this.status.verified = false;
       this.status.lastErrorAt = new Date().toISOString();
+      this.status.lastErrorCode = err.code || null;
+      this.status.lastErrorResponseCode = err.responseCode || null;
       throw err;
     }
   }
@@ -177,10 +183,14 @@ class EmailUtil {
         const info = await this.transporter.sendMail(message);
         this.status.verified = true;
         this.status.lastSentAt = new Date().toISOString();
+        this.status.lastErrorCode = null;
+        this.status.lastErrorResponseCode = null;
         console.log(`[email] Sent "${subject}" to ${to}. Message ID: ${info.messageId}`);
         return info;
       } catch (err) {
         this.status.lastErrorAt = new Date().toISOString();
+        this.status.lastErrorCode = err.code || null;
+        this.status.lastErrorResponseCode = err.responseCode || null;
 
         if (attempt === 2 || !this.isRetryable(err)) {
           throw err;
