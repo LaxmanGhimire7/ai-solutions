@@ -3,11 +3,31 @@ import { CalendarRange } from 'lucide-react';
 import EventCard from '@/components/shared/EventCard';
 import PageHero from '@/components/shared/PageHero';
 import SectionHeading from '@/components/shared/SectionHeading';
-import { events } from '@/data/siteData';
+import { events as sampleEvents } from '@/data/siteData';
+import { usePublicContent, mergePublishedWithSamples } from '@/hooks/usePublicContent';
+import { adaptEvent } from '@/utils/contentAdapters';
 
 const Events = () => {
   const [tab, setTab] = useState('Upcoming');
-  const visibleEvents = useMemo(() => events.filter((event) => event.type === tab), [tab]);
+  const { items: publishedEvents } = usePublicContent('events', {
+    page: 1,
+    limit: 50,
+    sortBy: 'createdAt',
+    order: 'desc',
+  });
+  const events = useMemo(
+    () =>
+      mergePublishedWithSamples(
+        publishedEvents.map(adaptEvent),
+        sampleEvents,
+        (event) => event.title
+      ),
+    [publishedEvents]
+  );
+  const visibleEvents = useMemo(
+    () => events.filter((event) => event.type === tab),
+    [events, tab]
+  );
 
   return (
     <>

@@ -14,6 +14,7 @@ import Articles from '@/pages/Articles';
 import Events from '@/pages/Events';
 import Gallery from '@/pages/Gallery';
 import Contact from '@/pages/Contact';
+import Testimonials from '@/pages/Testimonials';
 import AdminLogin from '@/pages/AdminLogin';
 
 const Dashboard = lazy(routeLoaders['/admin/dashboard']);
@@ -68,6 +69,7 @@ const App = () => {
           <Route path="/projects" element={<Projects />} />
           <Route path="/articles" element={<Articles />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/testimonials" element={<Testimonials />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
         </Route>

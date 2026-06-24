@@ -8,6 +8,7 @@ const links = [
   { label: 'Projects', to: '/projects' },
   { label: 'Articles', to: '/articles' },
   { label: 'Events', to: '/events' },
+  { label: 'Reviews', to: '/testimonials' },
   { label: 'Contact', to: '/contact' },
 ];
 
@@ -27,7 +28,7 @@ const PublicNavbar = () => {
           <span className="text-base">AI-Solutions</span>
         </Link>
 
-        <nav className="hidden items-center rounded-lg border border-white/15 bg-[#111111] p-1 md:flex" aria-label="Main navigation">
+        <nav className="hidden items-center rounded-lg border border-white/15 bg-[#111111] p-1 lg:flex" aria-label="Main navigation">
           {links.map((link) => (
             <NavLink
               key={link.to}
@@ -45,7 +46,7 @@ const PublicNavbar = () => {
 
         <Link
           to="/contact"
-          className="hidden md:block"
+          className="hidden lg:block"
         >
           <Button size="sm">
             Request Callback
@@ -55,7 +56,7 @@ const PublicNavbar = () => {
 
         <button
           type="button"
-          className="rounded-lg border border-white/15 bg-[#111111] p-2 text-[#F5ECE6] transition-colors hover:bg-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#E95520]/20 md:hidden"
+          className="rounded-lg border border-white/15 bg-[#111111] p-2 text-[#F5ECE6] transition-colors hover:bg-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#E95520]/20 lg:hidden"
           aria-label="Open navigation menu"
           onClick={() => setOpen((value) => !value)}
         >
@@ -64,7 +65,7 @@ const PublicNavbar = () => {
       </div>
 
       {open && (
-        <div className="border-t border-white/10 bg-black shadow-2xl md:hidden">
+        <div className="border-t border-white/10 bg-black shadow-2xl lg:hidden">
           <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-4" aria-label="Mobile navigation">
             {links.map((link) => (
               <NavLink

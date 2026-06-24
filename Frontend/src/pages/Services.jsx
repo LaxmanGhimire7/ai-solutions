@@ -1,11 +1,35 @@
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle2, Layers3 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import PageHero from '@/components/shared/PageHero';
 import SectionHeading from '@/components/shared/SectionHeading';
-import { services } from '@/data/siteData';
+import { services as sampleServices } from '@/data/siteData';
+import { usePublicContent, mergePublishedWithSamples } from '@/hooks/usePublicContent';
 
 const Services = () => {
+  const { items: publishedServices } = usePublicContent('services', {
+    page: 1,
+    limit: 50,
+    sortBy: 'createdAt',
+    order: 'desc',
+  });
+  const services = useMemo(
+    () =>
+      mergePublishedWithSamples(
+        publishedServices.map((service, index) => ({
+          id: service._id,
+          title: service.title,
+          description: service.description,
+          imageUrl: service.imageUrl,
+          icon: sampleServices[index % sampleServices.length]?.icon,
+        })),
+        sampleServices.map((service, index) => ({ ...service, id: `sample-${index}` })),
+        (service) => service.title
+      ),
+    [publishedServices]
+  );
+
   return (
     <>
       <PageHero
@@ -39,13 +63,20 @@ const Services = () => {
 
               return (
                 <article
-                  key={service.title}
+                  key={service.id || service.title}
                   className="grid overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.06)] lg:grid-cols-2"
                 >
                   <div className={`relative min-h-[320px] overflow-hidden bg-slate-50 p-8 md:p-12 ${reversed ? 'lg:order-2' : ''}`}>
                     <div className="absolute -left-12 -top-10 h-40 w-64 rounded-2xl border border-indigo-100 bg-indigo-50" />
                     <div className="absolute -bottom-14 -right-12 h-48 w-72 rounded-2xl border border-slate-200 bg-white" />
-                    <div className="relative flex h-full min-h-[240px] items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-sm">
+                    <div className="relative flex h-full min-h-[240px] items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                      {service.imageUrl ? (
+                        <img
+                          src={service.imageUrl}
+                          alt={service.title}
+                          className="absolute inset-0 h-full w-full object-cover"
+                        />
+                      ) : (
                       <div className="text-center">
                         <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-600 text-white">
                           <Icon className="h-8 w-8" aria-hidden="true" />
@@ -53,6 +84,7 @@ const Services = () => {
                         <p className="mt-5 text-xs font-semibold uppercase text-indigo-600">AI-Solutions capability</p>
                         <p className="mt-2 max-w-xs px-6 text-sm text-slate-500">{service.title}</p>
                       </div>
+                      )}
                     </div>
                   </div>
 

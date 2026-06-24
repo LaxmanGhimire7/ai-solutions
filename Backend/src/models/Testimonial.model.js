@@ -45,6 +45,11 @@ const testimonialSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    submissionSource: {
+      type: String,
+      enum: ['admin', 'customer'],
+      default: 'admin',
+    },
     isActive: {
       type: Boolean,
       default: true,
@@ -54,5 +59,6 @@ const testimonialSchema = new mongoose.Schema(
 );
 
 testimonialSchema.index({ published: 1, order: 1 });
+testimonialSchema.index({ submissionSource: 1, published: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Testimonial', testimonialSchema);

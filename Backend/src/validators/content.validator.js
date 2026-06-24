@@ -97,6 +97,14 @@ const testimonialUpdate = testimonialCreate.fork(
   (field) => field.optional()
 );
 
+const testimonialSubmission = Joi.object({
+  authorName: Joi.string().trim().max(100).required(),
+  authorTitle: Joi.string().trim().max(100).allow('').optional(),
+  authorCompany: Joi.string().trim().max(100).allow('').optional(),
+  quote: Joi.string().trim().min(10).max(1000).required(),
+  rating: Joi.number().integer().min(1).max(5).required(),
+});
+
 // ─── Shared query schema ──────────────────────────────────────────────────────
 const contentQuery = Joi.object({
   page: Joi.number().integer().min(1).default(1),
@@ -129,7 +137,7 @@ module.exports = {
   projectCreate, projectUpdate,
   eventCreate, eventUpdate,
   galleryCreate, galleryUpdate,
-  testimonialCreate, testimonialUpdate,
+  testimonialCreate, testimonialUpdate, testimonialSubmission,
   contentQuery,
   validate,
 };

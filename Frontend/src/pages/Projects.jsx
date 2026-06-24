@@ -4,11 +4,28 @@ import Button from '@/components/ui/Button';
 import ProjectCard from '@/components/shared/ProjectCard';
 import PageHero from '@/components/shared/PageHero';
 import SectionHeading from '@/components/shared/SectionHeading';
-import { projects } from '@/data/siteData';
+import { projects as sampleProjects } from '@/data/siteData';
+import { usePublicContent, mergePublishedWithSamples } from '@/hooks/usePublicContent';
+import { adaptProject } from '@/utils/contentAdapters';
 
 const Projects = () => {
   const [active, setActive] = useState('All');
   const [search, setSearch] = useState('');
+  const { items: publishedProjects } = usePublicContent('projects', {
+    page: 1,
+    limit: 50,
+    sortBy: 'createdAt',
+    order: 'desc',
+  });
+  const projects = useMemo(
+    () =>
+      mergePublishedWithSamples(
+        publishedProjects.map(adaptProject),
+        sampleProjects.map((project, index) => ({ ...project, id: `sample-${index}` })),
+        (project) => project.title
+      ),
+    [publishedProjects]
+  );
   const filters = ['All', ...new Set(projects.map((project) => project.industry))];
 
   const visibleProjects = useMemo(() => {
@@ -20,7 +37,7 @@ const Projects = () => {
         `${project.title} ${project.description} ${project.industry}`.toLowerCase().includes(query);
       return matchesFilter && matchesSearch;
     });
-  }, [active, search]);
+  }, [active, projects, search]);
 
   return (
     <>
@@ -69,7 +86,7 @@ const Projects = () => {
 
           <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {visibleProjects.map((project) => (
-              <ProjectCard key={project.title} {...project} />
+              <ProjectCard key={project.id || project.title} {...project} />
             ))}
           </div>
 

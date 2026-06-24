@@ -15,6 +15,8 @@ import {
   Search,
   Send,
   Sparkles,
+  Star,
+  Trash2,
   TrendingUp,
   Users,
   Zap,
@@ -42,6 +44,11 @@ import {
   getWeeklyInquiries,
   updateInquiryStatus,
 } from '@/api/inquiries';
+import {
+  deleteContent,
+  getAdminContent,
+  updateContent,
+} from '@/api/content';
 
 const serviceBuckets = [
   {
@@ -163,6 +170,8 @@ const Dashboard = () => {
   const [selectedInquiry, setSelectedInquiry] = useState(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const [pendingReviews, setPendingReviews] = useState([]);
+  const [reviewActionId, setReviewActionId] = useState('');
 
   const tableParams = useMemo(
     () => ({
@@ -214,6 +223,68 @@ const Dashboard = () => {
       active = false;
     };
   }, [tableParams, reloadKey]);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadPendingReviews = async () => {
+      try {
+        const response = await getAdminContent('testimonials', {
+          page: 1,
+          limit: 20,
+          sortBy: 'createdAt',
+          order: 'desc',
+        });
+
+        if (active) {
+          setPendingReviews(
+            (response.data || []).filter(
+              (review) => review.submissionSource === 'customer' && !review.published
+            )
+          );
+        }
+      } catch (error) {
+        if (active) {
+          toast.error(error.message || 'Unable to load pending customer reviews');
+        }
+      }
+    };
+
+    loadPendingReviews();
+
+    return () => {
+      active = false;
+    };
+  }, [reloadKey]);
+
+  const handlePublishReview = async (review) => {
+    setReviewActionId(review._id);
+    try {
+      await updateContent('testimonials', review._id, { published: true });
+      setPendingReviews((current) => current.filter((item) => item._id !== review._id));
+      toast.success('Customer review published');
+    } catch (error) {
+      toast.error(error.message || 'Unable to publish review');
+    } finally {
+      setReviewActionId('');
+    }
+  };
+
+  const handleDeleteReview = async (review) => {
+    const confirmed = window.confirm(`Delete the review submitted by "${review.authorName}"?`);
+    if (!confirmed) return;
+
+    setReviewActionId(review._id);
+    try {
+      await deleteContent('testimonials', review._id);
+      setPendingReviews((current) => current.filter((item) => item._id !== review._id));
+      toast.success('Customer review deleted');
+    } catch (error) {
+      toast.error(error.message || 'Unable to delete review');
+    } finally {
+      setReviewActionId('');
+    }
+  };
 
   const handleExport = async () => {
     try {
@@ -514,6 +585,86 @@ const Dashboard = () => {
               </div>
             );
           })}
+        </section>
+
+        <section className="mt-6 rounded-2xl border border-slate-100 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)] md:p-8">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <div>
+              <div className="flex items-center gap-3">
+                <h2 className="text-lg font-semibold text-slate-950">Pending Customer Reviews</h2>
+                <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-600">
+                  {pendingReviews.length}
+                </span>
+              </div>
+              <p className="mt-1 text-sm text-slate-500">
+                Approve reviews before they appear on the public Testimonials page.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/admin/content')}
+              className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+            >
+              Open Content Manager
+            </button>
+          </div>
+
+          {pendingReviews.length > 0 ? (
+            <div className="mt-6 grid gap-4 lg:grid-cols-2">
+              {pendingReviews.map((review) => (
+                <article
+                  key={review._id}
+                  className="rounded-xl border border-slate-100 bg-slate-50 p-5"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="font-semibold text-slate-900">{review.authorName}</h3>
+                      <p className="mt-1 text-xs text-slate-400">
+                        {[review.authorTitle, review.authorCompany].filter(Boolean).join(' · ') ||
+                          'Customer submission'}
+                      </p>
+                    </div>
+                    <div className="flex gap-1 text-[#E95520]" aria-label={`${review.rating} out of 5 stars`}>
+                      {Array.from({ length: 5 }, (_, index) => (
+                        <Star
+                          key={index}
+                          className={`h-4 w-4 ${
+                            index < review.rating ? 'fill-current' : 'text-slate-300'
+                          }`}
+                          aria-hidden="true"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="mt-4 text-sm leading-relaxed text-slate-600">"{review.quote}"</p>
+                  <p className="mt-3 text-xs text-slate-400">{formatDate(review.createdAt)}</p>
+                  <div className="mt-5 flex gap-3">
+                    <button
+                      type="button"
+                      disabled={reviewActionId === review._id}
+                      onClick={() => handlePublishReview(review)}
+                      className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-500 disabled:opacity-60"
+                    >
+                      Publish Review
+                    </button>
+                    <button
+                      type="button"
+                      disabled={reviewActionId === review._id}
+                      onClick={() => handleDeleteReview(review)}
+                      className="inline-flex items-center gap-2 rounded-lg border border-red-400/20 px-4 py-2 text-xs font-semibold text-red-400 hover:bg-red-400/10 disabled:opacity-60"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                      Delete
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-6 rounded-xl border border-slate-100 bg-slate-50 px-5 py-8 text-center text-sm text-slate-500">
+              No customer reviews are waiting for approval.
+            </div>
+          )}
         </section>
 
         <section className="mt-6 grid gap-6 xl:grid-cols-[1.7fr_1fr]">

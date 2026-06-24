@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
@@ -19,8 +19,13 @@ import ServiceCard from '@/components/shared/ServiceCard';
 import ProjectCard from '@/components/shared/ProjectCard';
 import TestimonialCard from '@/components/shared/TestimonialCard';
 import SectionHeading from '@/components/shared/SectionHeading';
-import { getPublicContent } from '@/api/content';
-import { projects, services } from '@/data/siteData';
+import {
+  projects as sampleProjects,
+  services as sampleServices,
+  testimonials as sampleTestimonials,
+} from '@/data/siteData';
+import { usePublicContent, mergePublishedWithSamples } from '@/hooks/usePublicContent';
+import { adaptProject, adaptTestimonial } from '@/utils/contentAdapters';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -65,37 +70,60 @@ const stackCards = [
 
 const Home = () => {
   const stackRef = useRef(null);
-  const [testimonials, setTestimonials] = useState([]);
-  const [testimonialsLoading, setTestimonialsLoading] = useState(true);
+  const { items: publishedServices } = usePublicContent('services', {
+    page: 1,
+    limit: 12,
+    sortBy: 'createdAt',
+    order: 'desc',
+  });
+  const { items: publishedProjects } = usePublicContent('projects', {
+    page: 1,
+    limit: 12,
+    sortBy: 'createdAt',
+    order: 'desc',
+  });
+  const { items: publishedTestimonials } = usePublicContent('testimonials', {
+    page: 1,
+    limit: 12,
+    sortBy: 'createdAt',
+    order: 'desc',
+  });
 
-  useEffect(() => {
-    let active = true;
-
-    const loadTestimonials = async () => {
-      try {
-        const response = await getPublicContent('testimonials', {
-          page: 1,
-          limit: 12,
-          sortBy: 'order',
-          order: 'asc',
-        });
-
-        if (active) {
-          setTestimonials(response.data || []);
-        }
-      } catch (error) {
-        console.error('Unable to load public testimonials:', error);
-      } finally {
-        if (active) setTestimonialsLoading(false);
-      }
-    };
-
-    loadTestimonials();
-
-    return () => {
-      active = false;
-    };
-  }, []);
+  const services = useMemo(
+    () =>
+      mergePublishedWithSamples(
+        publishedServices.map((service, index) => ({
+          id: service._id,
+          title: service.title,
+          description: service.description,
+          icon: sampleServices[index % sampleServices.length]?.icon,
+        })),
+        sampleServices.map((service, index) => ({ ...service, id: `sample-service-${index}` })),
+        (service) => service.title
+      ),
+    [publishedServices]
+  );
+  const projects = useMemo(
+    () =>
+      mergePublishedWithSamples(
+        publishedProjects.map(adaptProject),
+        sampleProjects.map((project, index) => ({ ...project, id: `sample-project-${index}` })),
+        (project) => project.title
+      ),
+    [publishedProjects]
+  );
+  const testimonials = useMemo(
+    () =>
+      mergePublishedWithSamples(
+        publishedTestimonials.map(adaptTestimonial),
+        sampleTestimonials.map((testimonial, index) => ({
+          ...testimonial,
+          id: `sample-testimonial-${index}`,
+        })),
+        (testimonial) => testimonial.id || `${testimonial.name}-${testimonial.quote}`
+      ),
+    [publishedTestimonials]
+  );
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
@@ -306,8 +334,8 @@ const Home = () => {
           />
 
           <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {projects.map((project) => (
-              <ProjectCard key={project.title} {...project} />
+            {projects.slice(0, 6).map((project) => (
+              <ProjectCard key={project.id || project.title} {...project} />
             ))}
           </div>
         </div>
@@ -321,8 +349,8 @@ const Home = () => {
             description="Each service is intentionally focused, easy to explain, and suitable for a final-year product development project."
           />
           <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {services.map((service) => (
-              <ServiceCard key={service.title} {...service} />
+            {services.slice(0, 8).map((service) => (
+              <ServiceCard key={service.id || service.title} {...service} />
             ))}
           </div>
         </div>
@@ -337,35 +365,11 @@ const Home = () => {
             description="Published feedback from customers who have worked with AI-Solutions."
             align="center"
           />
-          {testimonialsLoading ? (
-            <div className="mt-12 grid gap-6 md:grid-cols-3" aria-label="Loading customer testimonials">
-              {Array.from({ length: 3 }, (_, index) => (
-                <div
-                  key={index}
-                  className="h-64 animate-pulse rounded-2xl border border-white/10 bg-white/[0.04]"
-                />
-              ))}
-            </div>
-          ) : testimonials.length > 0 ? (
-            <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {testimonials.map((testimonial) => (
-                <TestimonialCard
-                  key={testimonial._id}
-                  quote={testimonial.quote}
-                  name={testimonial.authorName}
-                  company={
-                    [testimonial.authorTitle, testimonial.authorCompany].filter(Boolean).join(' · ')
-                  }
-                  rating={testimonial.rating}
-                  avatarUrl={testimonial.authorAvatar}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="mx-auto mt-12 max-w-2xl rounded-2xl border border-white/10 bg-white/[0.035] px-6 py-10 text-center">
-              <p className="text-sm text-[#A89D96]">No customer testimonials are published yet.</p>
-            </div>
-          )}
+          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {testimonials.slice(0, 6).map((testimonial) => (
+              <TestimonialCard key={testimonial.id} {...testimonial} />
+            ))}
+          </div>
         </div>
       </section>
 

@@ -5,7 +5,9 @@ import Card from '@/components/ui/Card';
 import Modal from '@/components/ui/Modal';
 import PageHero from '@/components/shared/PageHero';
 import SectionHeading from '@/components/shared/SectionHeading';
-import { articles } from '@/data/siteData';
+import { articles as sampleArticles } from '@/data/siteData';
+import { usePublicContent, mergePublishedWithSamples } from '@/hooks/usePublicContent';
+import { adaptArticle } from '@/utils/contentAdapters';
 
 const formatDate = (date) =>
   new Date(date).toLocaleDateString('en-GB', {
@@ -17,6 +19,21 @@ const formatDate = (date) =>
 const Articles = () => {
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState('');
+  const { items: publishedArticles } = usePublicContent('articles', {
+    page: 1,
+    limit: 50,
+    sortBy: 'createdAt',
+    order: 'desc',
+  });
+  const articles = useMemo(
+    () =>
+      mergePublishedWithSamples(
+        publishedArticles.map(adaptArticle),
+        sampleArticles,
+        (article) => article.title
+      ),
+    [publishedArticles]
+  );
 
   const visibleArticles = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -24,7 +41,7 @@ const Articles = () => {
     return articles.filter((article) =>
       `${article.title} ${article.excerpt} ${article.content}`.toLowerCase().includes(query)
     );
-  }, [search]);
+  }, [articles, search]);
 
   return (
     <>
@@ -68,6 +85,15 @@ const Articles = () => {
               >
                 <Card hoverable className="group h-full overflow-hidden p-0">
                   <div className={`relative overflow-hidden border-b border-slate-100 bg-slate-50 ${index === 0 ? 'h-60' : 'h-48'}`}>
+                    {article.coverImage && (
+                      <img
+                        src={article.coverImage}
+                        alt=""
+                        className="absolute inset-0 h-full w-full object-cover"
+                      />
+                    )}
+                    {!article.coverImage && (
+                      <>
                     <div className="absolute -left-12 top-8 h-32 w-56 rounded-2xl border border-indigo-100 bg-indigo-50" />
                     <div className="absolute -right-10 bottom-6 h-28 w-48 rounded-2xl border border-slate-200 bg-white" />
                     <div className="relative flex h-full items-center justify-center">
@@ -75,6 +101,8 @@ const Articles = () => {
                         <Newspaper className="h-7 w-7" aria-hidden="true" />
                       </span>
                     </div>
+                      </>
+                    )}
                     {index === 0 && (
                       <Badge variant="accent" className="absolute left-5 top-5 border border-indigo-100 bg-white">
                         Featured

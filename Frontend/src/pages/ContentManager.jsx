@@ -137,6 +137,13 @@ const ContentManager = () => {
   } = useForm({ defaultValues });
 
   const fields = useMemo(() => fieldConfig[activeType], [activeType]);
+  const pendingReviewCount = useMemo(
+    () =>
+      activeType === 'testimonials'
+        ? items.filter((item) => item.submissionSource === 'customer' && !item.published).length
+        : 0,
+    [activeType, items]
+  );
 
   const loadContent = useCallback(async () => {
     setIsLoading(true);
@@ -384,6 +391,11 @@ const ContentManager = () => {
             <div>
               <h2 className="text-lg font-semibold text-slate-900">{contentLabels[activeType]}</h2>
               <p className="mt-1 text-sm text-slate-500">{items.length} loaded records</p>
+              {activeType === 'testimonials' && pendingReviewCount > 0 && (
+                <p className="mt-2 text-xs font-semibold text-indigo-600">
+                  {pendingReviewCount} customer review{pendingReviewCount === 1 ? '' : 's'} awaiting approval
+                </p>
+              )}
             </div>
             <div className="relative w-full md:w-80">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
@@ -443,7 +455,11 @@ const ContentManager = () => {
                           item.published ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'
                         }`}
                       >
-                        {item.published ? 'Published' : 'Draft'}
+                        {item.published
+                          ? 'Published'
+                          : activeType === 'testimonials' && item.submissionSource === 'customer'
+                            ? 'Pending Review'
+                            : 'Draft'}
                       </button>
                     </td>
                     <td className="px-5 py-4 text-slate-500">

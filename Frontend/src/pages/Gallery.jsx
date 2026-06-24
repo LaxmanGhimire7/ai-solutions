@@ -1,14 +1,31 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Images } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
 import GalleryImage from '@/components/shared/GalleryImage';
 import PageHero from '@/components/shared/PageHero';
 import SectionHeading from '@/components/shared/SectionHeading';
-import { gallery } from '@/data/siteData';
+import { gallery as sampleGallery } from '@/data/siteData';
+import { usePublicContent, mergePublishedWithSamples } from '@/hooks/usePublicContent';
+import { adaptGalleryItem } from '@/utils/contentAdapters';
 
 const Gallery = () => {
   const [activeIndex, setActiveIndex] = useState(null);
+  const { items: publishedGallery } = usePublicContent('gallery', {
+    page: 1,
+    limit: 50,
+    sortBy: 'createdAt',
+    order: 'desc',
+  });
+  const gallery = useMemo(
+    () =>
+      mergePublishedWithSamples(
+        publishedGallery.map(adaptGalleryItem),
+        sampleGallery,
+        (image) => image.id || image.alt
+      ),
+    [publishedGallery]
+  );
   const activeImage = activeIndex !== null ? gallery[activeIndex] : null;
 
   const showPrevious = () => {

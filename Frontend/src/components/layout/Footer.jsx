@@ -10,6 +10,7 @@ const columns = [
       { label: 'Projects', to: '/projects' },
       { label: 'Articles', to: '/articles' },
       { label: 'Events', to: '/events' },
+      { label: 'Reviews', to: '/testimonials' },
     ],
   },
   {

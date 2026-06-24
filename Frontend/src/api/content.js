@@ -19,6 +19,11 @@ export const getPublicContent = async (type, params = {}) => {
   return response.data;
 };
 
+export const submitTestimonial = async (data) => {
+  const response = await api.post('/content/testimonials/submit', data);
+  return response.data;
+};
+
 export const createContent = async (type, data) => {
   const response = await api.post(`/content/${type}`, data);
   return response.data;
