@@ -12,33 +12,6 @@ class InquiryService {
   async create(data) {
     const inquiry = await this.inquiryRepo.create(data);
 
-    // Wait for the notification so its delivery result is recorded reliably.
-    let notificationStatus = 'failed';
-    let notificationSentAt = null;
-
-    try {
-      await this._notifyAdmin(inquiry);
-      notificationStatus = 'sent';
-      notificationSentAt = new Date();
-    } catch (err) {
-      console.error(
-        `Admin email notification failed for inquiry ${inquiry._id}:`,
-        err.code || err.message
-      );
-    }
-
-    inquiry.notificationStatus = notificationStatus;
-    inquiry.notificationSentAt = notificationSentAt;
-
-    await this.inquiryRepo
-      .updateNotificationStatus(inquiry._id, notificationStatus)
-      .catch((err) => {
-        console.error(
-          `Unable to record notification status for inquiry ${inquiry._id}:`,
-          err.message
-        );
-      });
-
     // Real-time notification to admin dashboard
     this.socketUtil.emit('new_inquiry', {
       id: inquiry._id,
@@ -47,6 +20,14 @@ class InquiryService {
       jobTitle: inquiry.jobTitle,
       country: inquiry.country,
       createdAt: inquiry.createdAt,
+    });
+
+    // Email delivery runs separately so a blocked provider cannot delay the form response.
+    this._deliverNotification(inquiry).catch((err) => {
+      console.error(
+        `Unable to finish notification workflow for inquiry ${inquiry._id}:`,
+        err.message
+      );
     });
 
     return inquiry;
@@ -170,6 +151,22 @@ class InquiryService {
   async _notifyAdmin(inquiry) {
     const template = this.emailUtil.newInquiryTemplate(inquiry);
     await this.emailUtil.send(template);
+  }
+
+  async _deliverNotification(inquiry) {
+    let status = 'failed';
+
+    try {
+      await this._notifyAdmin(inquiry);
+      status = 'sent';
+    } catch (err) {
+      console.error(
+        `Admin email notification failed for inquiry ${inquiry._id}:`,
+        err.code || err.message
+      );
+    }
+
+    await this.inquiryRepo.updateNotificationStatus(inquiry._id, status);
   }
 }
 

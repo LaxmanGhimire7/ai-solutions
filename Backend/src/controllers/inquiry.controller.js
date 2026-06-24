@@ -20,11 +20,9 @@ class InquiryController {
    */
   create = asyncHandler(async (req, res) => {
     const inquiry = await this.service.create(req.body);
-    const message = inquiry.notificationStatus === 'sent'
-      ? 'Inquiry submitted and admin notified successfully'
-      : 'Inquiry submitted, but the email notification is temporarily unavailable';
-
-    res.status(201).json(ApiResponse.success(inquiry, message, 201));
+    res.status(201).json(
+      ApiResponse.success(inquiry, 'Inquiry submitted successfully', 201)
+    );
   });
 
   /**

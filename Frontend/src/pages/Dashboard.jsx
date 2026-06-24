@@ -49,6 +49,8 @@ import {
   getAdminContent,
   updateContent,
 } from '@/api/content';
+import { onChatEvent } from '@/api/chat';
+import { useAuth } from '@/hooks/useAuth';
 
 const serviceBuckets = [
   {
@@ -157,6 +159,7 @@ const chartTooltipItemStyle = {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { token } = useAuth();
   const [stats, setStats] = useState(null);
   const [weekly, setWeekly] = useState([]);
   const [inquiries, setInquiries] = useState([]);
@@ -223,6 +226,15 @@ const Dashboard = () => {
       active = false;
     };
   }, [tableParams, reloadKey]);
+
+  useEffect(() => {
+    if (!token) return undefined;
+
+    return onChatEvent('new_inquiry', () => {
+      setReloadKey((value) => value + 1);
+      toast.success('A new customer inquiry has arrived');
+    }, token);
+  }, [token]);
 
   useEffect(() => {
     let active = true;

@@ -7,6 +7,7 @@ const REQUIRED_SMTP_KEYS = [
   'SMTP_PASS',
   'ADMIN_EMAIL',
 ];
+const REQUIRED_RESEND_KEYS = ['RESEND_API_KEY', 'ADMIN_EMAIL'];
 
 const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (char) => {
   const entities = {
@@ -30,8 +31,10 @@ const wait = (milliseconds) =>
 
 class EmailUtil {
   constructor() {
+    this.provider = this.getProvider();
     this.status = {
-      configured: false,
+      provider: this.provider,
+      configured: this.isConfigured(),
       verified: false,
       lastVerifiedAt: null,
       lastSentAt: null,
@@ -39,12 +42,31 @@ class EmailUtil {
       lastErrorCode: null,
       lastErrorResponseCode: null,
     };
-    this.transporter = this.createTransporter();
-    this.status.configured = Boolean(this.transporter);
+    this.transporter = this.provider === 'smtp' ? this.createTransporter() : null;
+  }
+
+  getProvider() {
+    const configuredProvider = String(process.env.EMAIL_PROVIDER || '').trim().toLowerCase();
+
+    if (configuredProvider === 'resend' || configuredProvider === 'smtp') {
+      return configuredProvider;
+    }
+
+    return process.env.RESEND_API_KEY ? 'resend' : 'smtp';
+  }
+
+  getRequiredKeys() {
+    return this.provider === 'resend' ? REQUIRED_RESEND_KEYS : REQUIRED_SMTP_KEYS;
   }
 
   getMissingKeys() {
-    return REQUIRED_SMTP_KEYS.filter((key) => !String(process.env[key] || '').trim());
+    return this.getRequiredKeys().filter(
+      (key) => !String(process.env[key] || '').trim()
+    );
+  }
+
+  isConfigured() {
+    return this.getMissingKeys().length === 0;
   }
 
   getPassword() {
@@ -96,12 +118,14 @@ class EmailUtil {
   }
 
   ensureConfigured() {
-    if (this.transporter) return;
+    if (this.status.configured && (this.provider !== 'smtp' || this.transporter)) {
+      return;
+    }
 
     const missingKeys = this.getMissingKeys();
     const reason = missingKeys.length > 0
       ? `Missing environment variable(s): ${missingKeys.join(', ')}`
-      : 'Ethereal SMTP is not allowed. Use a real SMTP provider.';
+      : 'The selected email provider could not be initialised.';
 
     const err = new Error(`Email delivery is not configured. ${reason}`);
     err.statusCode = 500;
@@ -109,6 +133,10 @@ class EmailUtil {
   }
 
   getFromAddress() {
+    if (this.provider === 'resend') {
+      return process.env.RESEND_FROM_EMAIL || 'AI-Solutions <onboarding@resend.dev>';
+    }
+
     const fromName = process.env.SMTP_FROM_NAME || 'AI-Solutions';
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER;
     return `"${fromName}" <${fromEmail}>`;
@@ -116,6 +144,15 @@ class EmailUtil {
 
   async verify() {
     this.ensureConfigured();
+
+    if (this.provider === 'resend') {
+      this.status.verified = true;
+      this.status.lastVerifiedAt = new Date().toISOString();
+      this.status.lastErrorCode = null;
+      this.status.lastErrorResponseCode = null;
+      console.log('[email] Resend HTTPS delivery configured');
+      return;
+    }
 
     try {
       await this.transporter.verify();
@@ -148,7 +185,42 @@ class EmailUtil {
     const responseCode = Number(error && error.responseCode);
 
     return retryableCodes.has(error && error.code)
-      || [421, 450, 451, 452].includes(responseCode);
+      || [408, 421, 429, 450, 451, 452, 500, 502, 503, 504].includes(responseCode);
+  }
+
+  async sendWithSmtp(message) {
+    const info = await this.transporter.sendMail(message);
+    return { messageId: info.messageId };
+  }
+
+  async sendWithResend({ from, to, subject, html, text, replyTo }) {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY.trim()}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from,
+        to: [to],
+        subject,
+        html,
+        text,
+        reply_to: replyTo,
+      }),
+      signal: AbortSignal.timeout(15000),
+    });
+
+    const payload = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      const err = new Error('Resend email request failed');
+      err.code = 'RESEND_API_ERROR';
+      err.responseCode = response.status;
+      throw err;
+    }
+
+    return { messageId: payload.id };
   }
 
   /**
@@ -180,12 +252,16 @@ class EmailUtil {
 
     for (let attempt = 1; attempt <= 2; attempt += 1) {
       try {
-        const info = await this.transporter.sendMail(message);
+        const info = this.provider === 'resend'
+          ? await this.sendWithResend(message)
+          : await this.sendWithSmtp(message);
         this.status.verified = true;
         this.status.lastSentAt = new Date().toISOString();
         this.status.lastErrorCode = null;
         this.status.lastErrorResponseCode = null;
-        console.log(`[email] Sent "${subject}" to ${to}. Message ID: ${info.messageId}`);
+        console.log(
+          `[email] Sent "${subject}" with ${this.provider}. Message ID: ${info.messageId}`
+        );
         return info;
       } catch (err) {
         this.status.lastErrorAt = new Date().toISOString();
