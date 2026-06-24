@@ -72,6 +72,19 @@ class InquiryRepository {
       .lean();
   }
 
+  async updateNotificationStatus(id, status) {
+    return this.model
+      .findByIdAndUpdate(
+        id,
+        {
+          notificationStatus: status,
+          notificationSentAt: status === 'sent' ? new Date() : null,
+        },
+        { new: true, runValidators: true }
+      )
+      .lean();
+  }
+
   /**
    * Soft delete an inquiry.
    */

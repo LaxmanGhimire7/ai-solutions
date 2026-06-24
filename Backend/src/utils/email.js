@@ -23,13 +23,35 @@ const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (char) => 
 const sanitizeSubjectPart = (value, fallback = 'Customer') =>
   String(value || fallback).replace(/[\r\n]+/g, ' ').trim().slice(0, 100);
 
+const wait = (milliseconds) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
+
 class EmailUtil {
   constructor() {
+    this.status = {
+      configured: false,
+      verified: false,
+      lastVerifiedAt: null,
+      lastSentAt: null,
+      lastErrorAt: null,
+    };
     this.transporter = this.createTransporter();
+    this.status.configured = Boolean(this.transporter);
   }
 
   getMissingKeys() {
-    return REQUIRED_SMTP_KEYS.filter((key) => !process.env[key]);
+    return REQUIRED_SMTP_KEYS.filter((key) => !String(process.env[key] || '').trim());
+  }
+
+  getPassword() {
+    const password = String(process.env.SMTP_PASS || '').trim();
+
+    // Google displays app passwords in four-character groups separated by spaces.
+    return /gmail\.com$/i.test(String(process.env.SMTP_HOST || '').trim())
+      ? password.replace(/\s+/g, '')
+      : password;
   }
 
   createTransporter() {
@@ -58,12 +80,15 @@ class EmailUtil {
       : port === 465;
 
     return nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
+      host: process.env.SMTP_HOST.trim(),
       port,
       secure,
+      connectionTimeout: 15000,
+      greetingTimeout: 15000,
+      socketTimeout: 30000,
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: process.env.SMTP_USER.trim(),
+        pass: this.getPassword(),
       },
     });
   }
@@ -89,8 +114,35 @@ class EmailUtil {
 
   async verify() {
     this.ensureConfigured();
-    await this.transporter.verify();
-    console.log(`[email] SMTP ready: ${process.env.SMTP_HOST}:${process.env.SMTP_PORT}`);
+
+    try {
+      await this.transporter.verify();
+      this.status.verified = true;
+      this.status.lastVerifiedAt = new Date().toISOString();
+      console.log(`[email] SMTP ready: ${process.env.SMTP_HOST}:${process.env.SMTP_PORT}`);
+    } catch (err) {
+      this.status.verified = false;
+      this.status.lastErrorAt = new Date().toISOString();
+      throw err;
+    }
+  }
+
+  getStatus() {
+    return { ...this.status };
+  }
+
+  isRetryable(error) {
+    const retryableCodes = new Set([
+      'ETIMEDOUT',
+      'ECONNECTION',
+      'ECONNRESET',
+      'ESOCKET',
+      'EAI_AGAIN',
+    ]);
+    const responseCode = Number(error && error.responseCode);
+
+    return retryableCodes.has(error && error.code)
+      || [421, 450, 451, 452].includes(responseCode);
   }
 
   /**
@@ -111,17 +163,35 @@ class EmailUtil {
       throw err;
     }
 
-    const info = await this.transporter.sendMail({
+    const message = {
       from: this.getFromAddress(),
       to,
       subject,
       html,
       text: text || String(html || '').replace(/<[^>]+>/g, ''),
       replyTo,
-    });
+    };
 
-    console.log(`[email] Sent "${subject}" to ${to}. Message ID: ${info.messageId}`);
-    return info;
+    for (let attempt = 1; attempt <= 2; attempt += 1) {
+      try {
+        const info = await this.transporter.sendMail(message);
+        this.status.verified = true;
+        this.status.lastSentAt = new Date().toISOString();
+        console.log(`[email] Sent "${subject}" to ${to}. Message ID: ${info.messageId}`);
+        return info;
+      } catch (err) {
+        this.status.lastErrorAt = new Date().toISOString();
+
+        if (attempt === 2 || !this.isRetryable(err)) {
+          throw err;
+        }
+
+        console.warn(`[email] Temporary SMTP failure. Retrying once (${err.code || 'SMTP error'}).`);
+        await wait(1000);
+      }
+    }
+
+    return null;
   }
 
   /**

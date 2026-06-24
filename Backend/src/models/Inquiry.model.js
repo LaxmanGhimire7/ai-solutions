@@ -49,6 +49,15 @@ const inquirySchema = new mongoose.Schema(
       enum: ['new', 'read', 'replied', 'archived'],
       default: 'new',
     },
+    notificationStatus: {
+      type: String,
+      enum: ['pending', 'sent', 'failed'],
+      default: 'pending',
+    },
+    notificationSentAt: {
+      type: Date,
+      default: null,
+    },
     isActive: {
       type: Boolean,
       default: true,

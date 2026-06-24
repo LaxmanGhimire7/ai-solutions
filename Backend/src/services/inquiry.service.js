@@ -12,10 +12,32 @@ class InquiryService {
   async create(data) {
     const inquiry = await this.inquiryRepo.create(data);
 
-    // Fire-and-forget email — non-blocking
-    this._notifyAdmin(inquiry).catch((err) =>
-      console.error('Admin email notification failed:', err.message)
-    );
+    // Wait for the notification so its delivery result is recorded reliably.
+    let notificationStatus = 'failed';
+    let notificationSentAt = null;
+
+    try {
+      await this._notifyAdmin(inquiry);
+      notificationStatus = 'sent';
+      notificationSentAt = new Date();
+    } catch (err) {
+      console.error(
+        `Admin email notification failed for inquiry ${inquiry._id}:`,
+        err.code || err.message
+      );
+    }
+
+    inquiry.notificationStatus = notificationStatus;
+    inquiry.notificationSentAt = notificationSentAt;
+
+    await this.inquiryRepo
+      .updateNotificationStatus(inquiry._id, notificationStatus)
+      .catch((err) => {
+        console.error(
+          `Unable to record notification status for inquiry ${inquiry._id}:`,
+          err.message
+        );
+      });
 
     // Real-time notification to admin dashboard
     this.socketUtil.emit('new_inquiry', {

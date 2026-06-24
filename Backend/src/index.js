@@ -231,6 +231,7 @@ app.get('/health', (req, res) => {
     uptime: process.uptime(),
     db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     realtimeChat: enableRealtimeChat,
+    email: emailUtil.getStatus(),
   });
 });
 

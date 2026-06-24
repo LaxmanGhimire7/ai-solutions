@@ -27,8 +27,14 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      await submitInquiry(values);
-      toast.success('Inquiry submitted successfully');
+      const response = await submitInquiry(values);
+
+      if (response.data?.notificationStatus === 'failed') {
+        toast.warning('Inquiry saved. The admin email notification is temporarily unavailable.');
+      } else {
+        toast.success('Inquiry submitted successfully');
+      }
+
       reset();
     } catch (error) {
       toast.error(error.message || 'Unable to submit inquiry');
