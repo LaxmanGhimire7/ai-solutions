@@ -44,6 +44,7 @@ const ChatbotWidget = () => {
   const [mode, setMode] = useState('faq');
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isServerWaking, setIsServerWaking] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [supportOnline, setSupportOnline] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
@@ -68,6 +69,7 @@ const ChatbotWidget = () => {
   const inputRef = useRef(null);
   const messagesEndRef = useRef(null);
   const resumeStartedRef = useRef(false);
+  const loadingTimerRef = useRef(null);
 
   const messages = mode === 'faq' ? faqMessages : liveMessages;
   const canSend = useMemo(
@@ -211,6 +213,8 @@ const ChatbotWidget = () => {
 
     setInput('');
     setIsLoading(true);
+    setIsServerWaking(false);
+    loadingTimerRef.current = window.setTimeout(() => setIsServerWaking(true), 5000);
     try {
       if (mode === 'faq') {
         await submitFaq(cleanMessage);
@@ -228,7 +232,9 @@ const ChatbotWidget = () => {
         ]);
       }
     } finally {
+      window.clearTimeout(loadingTimerRef.current);
       setIsLoading(false);
+      setIsServerWaking(false);
     }
   };
 
@@ -452,7 +458,11 @@ const ChatbotWidget = () => {
                 {isLoading && (
                   <div className="flex justify-start">
                     <div className="rounded-2xl rounded-bl-md border border-[#E7D9D0] bg-white px-4 py-2.5 text-sm text-[#746C67]">
-                      {mode === 'faq' ? 'Thinking...' : 'Sending...'}
+                      {mode === 'faq'
+                        ? isServerWaking
+                          ? 'Waking the support server...'
+                          : 'Thinking...'
+                        : 'Connecting to live support...'}
                     </div>
                   </div>
                 )}

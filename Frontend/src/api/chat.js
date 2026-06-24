@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import api from './axios';
+import api, { warmBackend } from './axios';
 
 const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
 let socket;
@@ -23,10 +23,15 @@ const getSocket = (token = null) => {
   return socket;
 };
 
-const emitWithAck = (event, payload, token = activeToken) =>
-  new Promise((resolve, reject) => {
+const emitWithAck = async (event, payload, token = activeToken) => {
+  await warmBackend();
+
+  return new Promise((resolve, reject) => {
     const client = getSocket(token);
-    const timeout = window.setTimeout(() => reject(new Error('Support server did not respond')), 12000);
+    const timeout = window.setTimeout(
+      () => reject(new Error('Support server did not respond. Please try again.')),
+      30000
+    );
 
     client.emit(event, payload, (response) => {
       window.clearTimeout(timeout);
@@ -37,15 +42,21 @@ const emitWithAck = (event, payload, token = activeToken) =>
       resolve(response);
     });
   });
+};
 
 export const connectCustomer = () => getSocket(null);
 
 export const connectAdmin = (token) => getSocket(token);
 
-export const joinAdmin = (token) =>
-  new Promise((resolve, reject) => {
+export const joinAdmin = async (token) => {
+  await warmBackend();
+
+  return new Promise((resolve, reject) => {
     const client = getSocket(token);
-    const timeout = window.setTimeout(() => reject(new Error('Unable to join support inbox')), 12000);
+    const timeout = window.setTimeout(
+      () => reject(new Error('Unable to join support inbox. Please try again.')),
+      30000
+    );
 
     client.emit('join_admin', (response) => {
       window.clearTimeout(timeout);
@@ -56,6 +67,7 @@ export const joinAdmin = (token) =>
       resolve(response);
     });
   });
+};
 
 export const startCustomerChat = (data) => emitWithAck('start_chat', data, null);
 
