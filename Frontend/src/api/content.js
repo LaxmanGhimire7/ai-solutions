@@ -14,6 +14,11 @@ export const getAdminContent = async (type, params = {}) => {
   return response.data;
 };
 
+export const getPublicContent = async (type, params = {}) => {
+  const response = await api.get(`/content/${type}`, { params });
+  return response.data;
+};
+
 export const createContent = async (type, data) => {
   const response = await api.post(`/content/${type}`, data);
   return response.data;

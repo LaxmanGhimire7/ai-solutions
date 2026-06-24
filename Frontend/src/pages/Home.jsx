@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
@@ -19,7 +19,8 @@ import ServiceCard from '@/components/shared/ServiceCard';
 import ProjectCard from '@/components/shared/ProjectCard';
 import TestimonialCard from '@/components/shared/TestimonialCard';
 import SectionHeading from '@/components/shared/SectionHeading';
-import { projects, services, testimonials } from '@/data/siteData';
+import { getPublicContent } from '@/api/content';
+import { projects, services } from '@/data/siteData';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -64,6 +65,37 @@ const stackCards = [
 
 const Home = () => {
   const stackRef = useRef(null);
+  const [testimonials, setTestimonials] = useState([]);
+  const [testimonialsLoading, setTestimonialsLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadTestimonials = async () => {
+      try {
+        const response = await getPublicContent('testimonials', {
+          page: 1,
+          limit: 12,
+          sortBy: 'order',
+          order: 'asc',
+        });
+
+        if (active) {
+          setTestimonials(response.data || []);
+        }
+      } catch (error) {
+        console.error('Unable to load public testimonials:', error);
+      } finally {
+        if (active) setTestimonialsLoading(false);
+      }
+    };
+
+    loadTestimonials();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
@@ -302,14 +334,38 @@ const Home = () => {
             dark
             eyebrow="Customer feedback"
             title="Clear systems create more confident service."
-            description="Example testimonials showing how structured communication helps client-facing teams."
+            description="Published feedback from customers who have worked with AI-Solutions."
             align="center"
           />
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {testimonials.map((testimonial) => (
-              <TestimonialCard key={testimonial.name} {...testimonial} />
-            ))}
-          </div>
+          {testimonialsLoading ? (
+            <div className="mt-12 grid gap-6 md:grid-cols-3" aria-label="Loading customer testimonials">
+              {Array.from({ length: 3 }, (_, index) => (
+                <div
+                  key={index}
+                  className="h-64 animate-pulse rounded-2xl border border-white/10 bg-white/[0.04]"
+                />
+              ))}
+            </div>
+          ) : testimonials.length > 0 ? (
+            <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {testimonials.map((testimonial) => (
+                <TestimonialCard
+                  key={testimonial._id}
+                  quote={testimonial.quote}
+                  name={testimonial.authorName}
+                  company={
+                    [testimonial.authorTitle, testimonial.authorCompany].filter(Boolean).join(' · ')
+                  }
+                  rating={testimonial.rating}
+                  avatarUrl={testimonial.authorAvatar}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="mx-auto mt-12 max-w-2xl rounded-2xl border border-white/10 bg-white/[0.035] px-6 py-10 text-center">
+              <p className="text-sm text-[#A89D96]">No customer testimonials are published yet.</p>
+            </div>
+          )}
         </div>
       </section>
 
