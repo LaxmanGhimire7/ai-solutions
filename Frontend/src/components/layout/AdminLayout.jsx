@@ -1,10 +1,26 @@
+import { useEffect } from 'react';
 import { Link, Navigate, Outlet } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import AdminSidebar from './AdminSidebar';
 import { useAuth } from '@/hooks/useAuth';
+import { connectAdmin, disconnectSocket, joinAdmin } from '@/api/chat';
 
 const AdminLayout = () => {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, token } = useAuth();
+
+  useEffect(() => {
+    if (!isAuthenticated || !token) return undefined;
+
+    const socket = connectAdmin(token);
+    const handleConnect = () => joinAdmin(token).catch(() => {});
+    socket.on('connect', handleConnect);
+    if (socket.connected) handleConnect();
+
+    return () => {
+      socket.off('connect', handleConnect);
+      disconnectSocket();
+    };
+  }, [isAuthenticated, token]);
 
   if (!isAuthenticated) {
     return <Navigate to="/admin/login" replace />;

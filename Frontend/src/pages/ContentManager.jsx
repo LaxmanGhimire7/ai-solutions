@@ -486,6 +486,7 @@ const ContentManager = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={`${editingItem ? 'Edit' : 'Add'} ${contentLabels[activeType]}`}
+        size="xl"
       >
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 md:grid-cols-2">
           {fields.map(renderField)}

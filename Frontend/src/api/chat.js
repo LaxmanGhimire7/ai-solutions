@@ -1,39 +1,108 @@
 import { io } from 'socket.io-client';
+import api from './axios';
 
+const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
 let socket;
+let activeToken = null;
 
-export const initSocket = () => {
+const getSocket = (token = null) => {
   if (!socket) {
-    socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000', {
+    activeToken = token;
+    socket = io(socketUrl, {
       autoConnect: false,
+      transports: ['websocket', 'polling'],
+      auth: token ? { token } : {},
     });
+  } else if (activeToken !== token) {
+    activeToken = token;
+    socket.auth = token ? { token } : {};
+    if (socket.connected) socket.disconnect();
   }
 
-  if (!socket.connected) {
-    socket.connect();
-  }
-
+  if (!socket.connected) socket.connect();
   return socket;
 };
 
-export const joinAdmin = () => {
-  initSocket().emit('join_admin');
+const emitWithAck = (event, payload, token = activeToken) =>
+  new Promise((resolve, reject) => {
+    const client = getSocket(token);
+    const timeout = window.setTimeout(() => reject(new Error('Support server did not respond')), 12000);
+
+    client.emit(event, payload, (response) => {
+      window.clearTimeout(timeout);
+      if (!response?.success) {
+        reject(new Error(response?.message || 'Unable to complete chat action'));
+        return;
+      }
+      resolve(response);
+    });
+  });
+
+export const connectCustomer = () => getSocket(null);
+
+export const connectAdmin = (token) => getSocket(token);
+
+export const joinAdmin = (token) =>
+  new Promise((resolve, reject) => {
+    const client = getSocket(token);
+    const timeout = window.setTimeout(() => reject(new Error('Unable to join support inbox')), 12000);
+
+    client.emit('join_admin', (response) => {
+      window.clearTimeout(timeout);
+      if (!response?.success) {
+        reject(new Error(response?.message || 'Admin authentication required'));
+        return;
+      }
+      resolve(response);
+    });
+  });
+
+export const startCustomerChat = (data) => emitWithAck('start_chat', data, null);
+
+export const sendCustomerMessage = ({ sessionId, content }) =>
+  emitWithAck('customer_message', { sessionId, content }, null);
+
+export const submitChatRating = ({ sessionId, rating, ratingComment }) =>
+  emitWithAck('submit_chat_rating', { sessionId, rating, ratingComment }, null);
+
+export const sendAdminReply = ({ sessionId, content }, token) =>
+  emitWithAck('admin_reply', { sessionId, content }, token);
+
+export const markChatRead = (sessionId, token) => {
+  getSocket(token).emit('mark_chat_read', { sessionId });
 };
 
-export const sendAdminReply = ({ sessionId, targetSocketId, content }) => {
-  initSocket().emit('admin_reply', { sessionId, targetSocketId, content });
+export const onChatEvent = (event, handler, token = activeToken) => {
+  const client = getSocket(token);
+  client.on(event, handler);
+  return () => client.off(event, handler);
 };
 
-export const onCustomerMessage = (handler) => {
-  initSocket().on('customer_message', handler);
+export const getChatSessions = async (params = {}) => {
+  const response = await api.get('/chat/sessions', { params });
+  return response.data;
 };
 
-export const onNewChatSession = (handler) => {
-  initSocket().on('new_chat_session', handler);
+export const getChatSession = async (id) => {
+  const response = await api.get(`/chat/sessions/${id}`);
+  return response.data;
+};
+
+export const updateChatStatus = async (id, status) => {
+  const response = await api.patch(`/chat/sessions/${id}/status`, { status });
+  return response.data;
+};
+
+export const deleteChatSession = async (id) => {
+  const response = await api.delete(`/chat/sessions/${id}`);
+  return response.data;
 };
 
 export const disconnectSocket = () => {
   if (socket) {
+    socket.removeAllListeners();
     socket.disconnect();
+    socket = undefined;
+    activeToken = null;
   }
 };

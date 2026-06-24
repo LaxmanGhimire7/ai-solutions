@@ -15,9 +15,7 @@ router.use('/gallery', require('./gallery.routes'));
 router.use('/testimonials', require('./testimonial.routes'));
 
 const chatRoutes = require('./chat.routes');
-if (process.env.ENABLE_REALTIME_CHAT === 'true') {
-  router.use('/chat', chatRoutes.router);
-}
+router.use('/chat', chatRoutes.router);
 
 module.exports = router;
 module.exports.chatService = chatRoutes.chatService;

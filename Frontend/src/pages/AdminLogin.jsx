@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { ArrowLeft, BarChart3, CheckCircle2, Lock, Mail, ShieldCheck } from 'lucide-react';
+import {
+  ArrowLeft,
+  BarChart3,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  ShieldCheck,
+} from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import Button from '@/components/ui/Button';
@@ -8,6 +17,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -102,7 +112,7 @@ const AdminLogin = () => {
                       autoComplete="email"
                       {...register('email', { required: 'Email is required' })}
                       placeholder="admin@ai-solutions.com"
-                      className={`h-12 w-full rounded-xl border bg-slate-50 pl-12 pr-4 text-sm text-slate-900 outline-none transition-colors focus:bg-white focus:ring-2 focus:ring-indigo-500/20 ${
+                      className={`login-field h-12 w-full rounded-xl border bg-white pl-12 pr-4 text-sm text-slate-900 outline-none transition-colors focus:bg-white focus:ring-2 focus:ring-[#E95520]/20 ${
                         errors.email ? 'border-red-300 focus:border-red-400' : 'border-slate-200 focus:border-indigo-500'
                       }`}
                     />
@@ -116,14 +126,26 @@ const AdminLogin = () => {
                     <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" aria-hidden="true" />
                     <input
                       id="password"
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       autoComplete="current-password"
                       {...register('password', { required: 'Password is required' })}
                       placeholder="Enter your password"
-                      className={`h-12 w-full rounded-xl border bg-slate-50 pl-12 pr-4 text-sm text-slate-900 outline-none transition-colors focus:bg-white focus:ring-2 focus:ring-indigo-500/20 ${
+                      className={`login-field h-12 w-full rounded-xl border bg-white pl-12 pr-12 text-sm text-slate-900 outline-none transition-colors focus:bg-white focus:ring-2 focus:ring-[#E95520]/20 ${
                         errors.password ? 'border-red-300 focus:border-red-400' : 'border-slate-200 focus:border-indigo-500'
                       }`}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((current) => !current)}
+                      className="absolute right-3 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-[#E95520] focus:outline-none focus:ring-2 focus:ring-[#E95520]/20"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" aria-hidden="true" />
+                      ) : (
+                        <Eye className="h-4 w-4" aria-hidden="true" />
+                      )}
+                    </button>
                   </div>
                   {errors.password && <p className="mt-1.5 text-xs text-red-500">{errors.password.message}</p>}
                 </div>

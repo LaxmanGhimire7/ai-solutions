@@ -6,6 +6,8 @@ class ChatController {
     this.service = chatService;
     this.getSessions = this.getSessions.bind(this);
     this.getSessionById = this.getSessionById.bind(this);
+    this.updateStatus = this.updateStatus.bind(this);
+    this.deleteConversation = this.deleteConversation.bind(this);
   }
 
   /**
@@ -30,6 +32,16 @@ class ChatController {
   getSessionById = asyncHandler(async (req, res) => {
     const session = await this.service.getSessionById(req.params.id);
     res.status(200).json(ApiResponse.success(session, 'Session fetched'));
+  });
+
+  updateStatus = asyncHandler(async (req, res) => {
+    const session = await this.service.updateStatus(req.params.id, req.body.status);
+    res.status(200).json(ApiResponse.success(session, 'Chat status updated'));
+  });
+
+  deleteConversation = asyncHandler(async (req, res) => {
+    await this.service.deleteConversation(req.params.id);
+    res.status(200).json(ApiResponse.success({}, 'Conversation deleted'));
   });
 }
 

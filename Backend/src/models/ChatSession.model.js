@@ -4,7 +4,7 @@ const messageSchema = new mongoose.Schema(
   {
     sender: {
       type: String,
-      enum: ['customer', 'admin'],
+      enum: ['customer', 'admin', 'system'],
       required: true,
     },
     content: {
@@ -17,6 +17,18 @@ const messageSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    actionLabel: {
+      type: String,
+      trim: true,
+      maxlength: 80,
+      default: '',
+    },
+    actionHref: {
+      type: String,
+      trim: true,
+      maxlength: 200,
+      default: '',
+    },
   },
   { timestamps: true }
 );
@@ -25,7 +37,7 @@ const chatSessionSchema = new mongoose.Schema(
   {
     socketId: {
       type: String,
-      required: true,
+      default: '',
       index: true,
     },
     customerName: {
@@ -45,6 +57,50 @@ const chatSessionSchema = new mongoose.Schema(
       enum: ['active', 'closed', 'missed'],
       default: 'active',
     },
+    online: {
+      type: Boolean,
+      default: false,
+    },
+    unreadCount: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
+    lastMessage: {
+      type: String,
+      trim: true,
+      maxlength: 1000,
+      default: '',
+    },
+    lastSender: {
+      type: String,
+      enum: ['customer', 'admin', 'system', ''],
+      default: '',
+    },
+    lastMessageAt: {
+      type: Date,
+      default: Date.now,
+    },
+    closedAt: {
+      type: Date,
+      default: null,
+    },
+    rating: {
+      type: Number,
+      min: 1,
+      max: 5,
+      default: null,
+    },
+    ratingComment: {
+      type: String,
+      trim: true,
+      maxlength: 500,
+      default: '',
+    },
+    ratedAt: {
+      type: Date,
+      default: null,
+    },
     messages: [messageSchema],
     isActive: {
       type: Boolean,
@@ -54,7 +110,7 @@ const chatSessionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-chatSessionSchema.index({ status: 1, createdAt: -1 });
-chatSessionSchema.index({ createdAt: -1 });
+chatSessionSchema.index({ status: 1, lastMessageAt: -1 });
+chatSessionSchema.index({ lastMessageAt: -1 });
 
 module.exports = mongoose.model('ChatSession', chatSessionSchema);

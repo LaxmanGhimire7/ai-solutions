@@ -313,6 +313,7 @@ img {
   background:
     radial-gradient(circle at 92% 5%, rgba(233, 85, 32, 0.12), transparent 28rem),
     var(--ink);
+  color-scheme: dark;
 }
 
 .admin-theme .bg-white {
@@ -324,8 +325,22 @@ img {
   background-color: var(--ink);
 }
 
+.admin-theme .bg-slate-50\/60,
+.admin-theme .bg-slate-50\/70,
+.admin-theme .bg-slate-50\/80 {
+  background-color: rgba(245, 236, 230, 0.035);
+}
+
+.admin-theme .bg-white\/90 {
+  background-color: rgba(17, 16, 15, 0.94);
+}
+
 .admin-theme .bg-slate-100 {
   background-color: rgba(245, 236, 230, 0.07);
+}
+
+.admin-theme .bg-indigo-100 {
+  background-color: rgba(233, 85, 32, 0.14);
 }
 
 .admin-theme .bg-indigo-50 {
@@ -377,6 +392,44 @@ img {
   color: var(--cream);
 }
 
+.admin-theme select option {
+  background: #11100f;
+  color: #f5ece6;
+}
+
+.admin-theme input:disabled,
+.admin-theme textarea:disabled,
+.admin-theme select:disabled {
+  cursor: not-allowed;
+  color: #746c67;
+  opacity: 1;
+}
+
+.admin-theme input:-webkit-autofill,
+.admin-theme input:-webkit-autofill:hover,
+.admin-theme input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f5ece6;
+  caret-color: #f5ece6;
+  box-shadow: 0 0 0 1000px #11100f inset;
+  transition: background-color 9999s ease-out;
+}
+
+.login-field,
+.login-field:focus {
+  color-scheme: light;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.login-field:-webkit-autofill,
+.login-field:-webkit-autofill:hover,
+.login-field:-webkit-autofill:focus {
+  -webkit-text-fill-color: #0f172a;
+  caret-color: #0f172a;
+  box-shadow: 0 0 0 1000px #ffffff inset;
+  transition: background-color 9999s ease-out;
+}
+
 .admin-theme input::placeholder,
 .admin-theme textarea::placeholder {
   color: #746c67;
@@ -411,4 +464,20 @@ img {
 .admin-theme .hover\:text-indigo-600:hover,
 .admin-theme .hover\:text-indigo-500:hover {
   color: #f37a49;
+}
+
+.admin-theme tbody tr {
+  color: #f5ece6;
+}
+
+.admin-theme tbody tr:hover {
+  background-color: #15110f;
+}
+
+.admin-theme .chat-wallpaper {
+  background-color: #0c0d0c;
+  background-image:
+    radial-gradient(circle at 24px 24px, rgba(233, 85, 32, 0.055) 1.5px, transparent 1.5px),
+    linear-gradient(45deg, transparent 48%, rgba(245, 236, 230, 0.025) 49%, rgba(245, 236, 230, 0.025) 51%, transparent 52%);
+  background-size: 48px 48px, 72px 72px;
 }

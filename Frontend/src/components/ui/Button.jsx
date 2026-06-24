@@ -10,6 +10,7 @@ const sizes = {
   sm: 'px-4 py-2 text-sm',
   md: 'px-6 py-2.5 text-sm',
   lg: 'px-8 py-3 text-base',
+  icon: 'h-11 w-11 p-0 text-sm',
 };
 
 const Button = ({

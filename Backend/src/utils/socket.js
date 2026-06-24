@@ -36,6 +36,11 @@ const socketUtil = {
     if (!_io) return;
     _io.to(room).emit(event, data);
   },
+
+  roomSize(room) {
+    if (!_io) return 0;
+    return _io.sockets.adapter.rooms.get(room)?.size || 0;
+  },
 };
 
 module.exports = socketUtil;

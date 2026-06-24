@@ -21,7 +21,7 @@ MONGODB_URI=your-mongodb-atlas-connection-string
 JWT_SECRET=use-a-long-random-secret
 JWT_EXPIRES_IN=7d
 CLIENT_URL=http://localhost:5173,https://ai-solutions-laxman.vercel.app
-ENABLE_REALTIME_CHAT=false
+ENABLE_REALTIME_CHAT=true
 
 ADMIN_EMAIL=your-admin-email@gmail.com
 SMTP_HOST=smtp.gmail.com
