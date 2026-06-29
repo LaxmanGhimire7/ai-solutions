@@ -1,5 +1,6 @@
 export const routeLoaders = {
   '/admin/dashboard': () => import('@/pages/Dashboard'),
+  '/admin/inquiries': () => import('@/pages/Inquiries'),
   '/admin/content': () => import('@/pages/ContentManager'),
   '/admin/chat': () => import('@/pages/ChatSupport'),
 };

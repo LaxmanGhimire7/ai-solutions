@@ -13,7 +13,7 @@ const AdminLayout = () => {
   const navigate = useNavigate();
 
   useEffect(
-    () => scheduleRoutePreload(['/admin/dashboard', '/admin/content', '/admin/chat']),
+    () => scheduleRoutePreload(['/admin/dashboard', '/admin/inquiries', '/admin/content', '/admin/chat']),
     []
   );
 

@@ -19,6 +19,7 @@ import Testimonials from '@/pages/Testimonials';
 import AdminLogin from '@/pages/AdminLogin';
 
 const Dashboard = lazy(routeLoaders['/admin/dashboard']);
+const Inquiries = lazy(routeLoaders['/admin/inquiries']);
 const ChatSupport = lazy(routeLoaders['/admin/chat']);
 const ContentManager = lazy(routeLoaders['/admin/content']);
 
@@ -87,6 +88,7 @@ const App = () => {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="inquiries" element={<Inquiries />} />
           <Route path="content" element={<ContentManager />} />
           <Route path="chat" element={<ChatSupport />} />
         </Route>

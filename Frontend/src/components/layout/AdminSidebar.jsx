@@ -1,10 +1,11 @@
 import { Link, NavLink } from 'react-router-dom';
-import { BarChart3, ExternalLink, FileText, HelpCircle, LogOut, Plus } from 'lucide-react';
+import { BarChart3, ExternalLink, FileText, HelpCircle, Inbox, LogOut, Plus } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { preloadRoute } from '@/utils/routePreload';
 
 const items = [
   { label: 'Analytics', to: '/admin/dashboard', icon: BarChart3 },
+  { label: 'Inquiries', to: '/admin/inquiries', icon: Inbox },
   { label: 'Content', to: '/admin/content', icon: FileText },
   { label: 'Support', to: '/admin/chat', icon: HelpCircle },
 ];
