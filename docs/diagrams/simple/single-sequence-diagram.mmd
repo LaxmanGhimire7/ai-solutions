@@ -1,0 +1,42 @@
+sequenceDiagram
+    actor User
+    participant Website as AI-Solutions Website
+    participant API as Backend API
+    participant Database as MongoDB Database
+    actor Admin
+
+    User->>Website: Open website
+    Website->>API: Request published content
+    API->>Database: Fetch services, projects, articles, events, gallery and testimonials
+    Database-->>API: Return published content
+    API-->>Website: Send website content
+    Website-->>User: Display public pages
+
+    User->>Website: Submit inquiry / review / chat message
+    Website->>API: Send user details
+    API->>API: Validate submitted data
+    API->>Database: Save user record
+    Database-->>API: Record saved
+    API-->>Website: Send success response
+    Website-->>User: Show confirmation message
+
+    Admin->>Website: Login to admin panel
+    Website->>API: Send login credentials
+    API->>Database: Check admin account
+    Database-->>API: Return admin data
+    API-->>Website: Send login token
+    Website-->>Admin: Open admin dashboard
+
+    Admin->>Website: View dashboard and manage records
+    Website->>API: Request inquiries, content and chats
+    API->>Database: Fetch admin records
+    Database-->>API: Return records
+    API-->>Website: Send dashboard data
+    Website-->>Admin: Display inquiries and content
+
+    Admin->>Website: Update inquiry, content or chat status
+    Website->>API: Send update request
+    API->>Database: Save updated data
+    Database-->>API: Update complete
+    API-->>Website: Confirm update
+    Website-->>Admin: Show updated result

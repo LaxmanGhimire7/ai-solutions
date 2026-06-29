@@ -1,0 +1,20 @@
+flowchart LR
+    User[User]
+    Admin[Admin]
+    UI[React Website]
+    API[Node.js / Express API]
+    Auth[Admin Authentication]
+    Chat[Chatbot and Live Chat]
+    DB[(MongoDB Database)]
+    Email[Email Notification]
+
+    User --> UI
+    Admin --> UI
+    UI --> API
+    UI --> Chat
+    API --> Auth
+    API --> DB
+    Chat --> DB
+    API --> Email
+    Auth --> DB
+    DB --> UI

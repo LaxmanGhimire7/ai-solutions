@@ -1,0 +1,91 @@
+classDiagram
+    direction LR
+
+    class User {
+        +viewWebsite()
+        +submitInquiry()
+        +useChatbot()
+        +submitReview()
+    }
+
+    class Admin {
+        +login()
+        +viewDashboard()
+        +manageInquiries()
+        +manageContent()
+        +manageChats()
+        +logout()
+    }
+
+    class Inquiry {
+        +name
+        +email
+        +phone
+        +companyName
+        +country
+        +jobTitle
+        +jobDetails
+        +status
+    }
+
+    class Content {
+        +title
+        +description
+        +imageUrl
+        +published
+    }
+
+    class Service
+    class Project
+    class Article
+    class Event
+    class Gallery
+
+    class Testimonial {
+        +authorName
+        +authorCompany
+        +quote
+        +rating
+        +published
+    }
+
+    class ChatSession {
+        +customerName
+        +customerEmail
+        +status
+        +rating
+    }
+
+    class ChatMessage {
+        +sender
+        +message
+        +sentAt
+    }
+
+    class Database {
+        +saveData()
+        +updateData()
+        +deleteData()
+        +fetchData()
+    }
+
+    User --> Inquiry : submits
+    User --> ChatSession : starts
+    User --> Testimonial : submits
+
+    Admin --> Inquiry : manages
+    Admin --> Content : manages
+    Admin --> ChatSession : replies to
+
+    Content <|-- Service
+    Content <|-- Project
+    Content <|-- Article
+    Content <|-- Event
+    Content <|-- Gallery
+
+    ChatSession "1" --> "many" ChatMessage : contains
+
+    Inquiry --> Database : stored in
+    Content --> Database : stored in
+    Testimonial --> Database : stored in
+    ChatSession --> Database : stored in

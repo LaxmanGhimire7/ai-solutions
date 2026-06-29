@@ -5,7 +5,7 @@ import PageHero from '@/components/shared/PageHero';
 import SectionHeading from '@/components/shared/SectionHeading';
 import { events as sampleEvents } from '@/data/siteData';
 import { usePublicContent, mergePublishedWithSamples } from '@/hooks/usePublicContent';
-import { adaptEvent } from '@/utils/contentAdapters';
+import { adaptEvent, adaptSampleEvent } from '@/utils/contentAdapters';
 
 const Events = () => {
   const [tab, setTab] = useState('Upcoming');
@@ -19,7 +19,7 @@ const Events = () => {
     () =>
       mergePublishedWithSamples(
         publishedEvents.map(adaptEvent),
-        sampleEvents,
+        sampleEvents.map(adaptSampleEvent),
         (event) => event.title
       ),
     [publishedEvents]
@@ -65,7 +65,7 @@ const Events = () => {
 
           <div className="mt-10 space-y-5">
             {visibleEvents.map((event) => (
-              <EventCard key={event.title} {...event} />
+              <EventCard key={event.id || event.title} {...event} to={`/events/${event.id}`} />
             ))}
           </div>
 

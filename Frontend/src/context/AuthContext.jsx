@@ -1,4 +1,4 @@
-import { createContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { login as loginRequest, logout as logoutRequest } from '@/api/auth';
 import { isTokenExpired, readStoredJson } from '@/utils/storage';
 
@@ -18,15 +18,23 @@ export const AuthProvider = ({ children }) => {
   });
   const [admin, setAdmin] = useState(() => readStoredJson('ai_solutions_admin'));
 
+  const endSession = useCallback((reason = '') => {
+    if (reason) {
+      localStorage.setItem('ai_solutions_logout_reason', reason);
+    }
+
+    setToken(null);
+    setAdmin(null);
+  }, []);
+
   useEffect(() => {
     const handleUnauthorized = () => {
-      setToken(null);
-      setAdmin(null);
+      endSession();
     };
 
     window.addEventListener('ai-solutions:unauthorized', handleUnauthorized);
     return () => window.removeEventListener('ai-solutions:unauthorized', handleUnauthorized);
-  }, []);
+  }, [endSession]);
 
   useEffect(() => {
     if (token) {
@@ -44,31 +52,32 @@ export const AuthProvider = ({ children }) => {
     }
   }, [admin]);
 
-  const login = async (email, password) => {
+  const login = useCallback(async (email, password) => {
     const response = await loginRequest(email, password);
     const payload = response.data;
 
+    localStorage.removeItem('ai_solutions_logout_reason');
     setToken(payload.token);
     setAdmin(payload.admin);
 
     return payload.admin;
-  };
+  }, []);
 
-  const logout = async () => {
-    setToken(null);
-    setAdmin(null);
+  const logout = useCallback(async () => {
+    endSession();
     await logoutRequest();
-  };
+  }, [endSession]);
 
   const value = useMemo(
     () => ({
       admin,
+      endSession,
       token,
       isAuthenticated: Boolean(token),
       login,
       logout,
     }),
-    [admin, token]
+    [admin, endSession, login, logout, token]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

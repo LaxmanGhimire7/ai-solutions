@@ -12,6 +12,7 @@ import Services from '@/pages/Services';
 import Projects from '@/pages/Projects';
 import Articles from '@/pages/Articles';
 import Events from '@/pages/Events';
+import EventDetail from '@/pages/EventDetail';
 import Gallery from '@/pages/Gallery';
 import Contact from '@/pages/Contact';
 import Testimonials from '@/pages/Testimonials';
@@ -69,6 +70,7 @@ const App = () => {
           <Route path="/projects" element={<Projects />} />
           <Route path="/articles" element={<Articles />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/events/:eventId" element={<EventDetail />} />
           <Route path="/testimonials" element={<Testimonials />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />

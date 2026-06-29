@@ -38,6 +38,7 @@ import {
 } from 'recharts';
 import Modal from '@/components/ui/Modal';
 import {
+  deleteInquiry,
   exportCSV,
   getDashboardStats,
   getInquiries,
@@ -171,6 +172,7 @@ const Dashboard = () => {
   const [chartMode, setChartMode] = useState('weekly');
   const [showAll, setShowAll] = useState(false);
   const [selectedInquiry, setSelectedInquiry] = useState(null);
+  const [deletingInquiryId, setDeletingInquiryId] = useState('');
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [pendingReviews, setPendingReviews] = useState([]);
@@ -339,6 +341,29 @@ const Dashboard = () => {
       toast.error(error.response?.data?.message || error.message || 'Unable to update status');
     } finally {
       setUpdatingStatus(false);
+    }
+  };
+
+  const handleDeleteInquiry = async (inquiry) => {
+    if (!inquiry) return;
+
+    const confirmed = window.confirm(
+      `Delete the inquiry from "${inquiry.companyName || inquiry.name}"?`
+    );
+    if (!confirmed) return;
+
+    setDeletingInquiryId(inquiry._id);
+    try {
+      await deleteInquiry(inquiry._id);
+      setInquiries((current) => current.filter((item) => item._id !== inquiry._id));
+      setAnalyticsInquiries((current) => current.filter((item) => item._id !== inquiry._id));
+      setSelectedInquiry((current) => (current?._id === inquiry._id ? null : current));
+      setReloadKey((value) => value + 1);
+      toast.success('Inquiry deleted');
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message || 'Unable to delete inquiry');
+    } finally {
+      setDeletingInquiryId('');
     }
   };
 
@@ -926,8 +951,11 @@ const Dashboard = () => {
           <div className="rounded-2xl border border-slate-100 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <div className="flex flex-col gap-4 px-6 py-6 md:flex-row md:items-center md:justify-between md:px-8">
               <div>
-                <h2 className="text-lg font-semibold text-slate-950">Inquiry Records</h2>
+                <h2 className="text-lg font-semibold text-slate-950">Inquiry Handling</h2>
                 <p className="mt-1 text-sm text-slate-500">
+                  View full inquiry details, update follow-up status, or delete old records.
+                </p>
+                <p className="mt-1 text-xs text-slate-400">
                   {inquiries.length} loaded record{inquiries.length === 1 ? '' : 's'}
                   {statusFilter !== 'all' ? ` - filtered by ${statusLabels[statusFilter]}` : ''}
                 </p>
@@ -973,7 +1001,7 @@ const Dashboard = () => {
                 </thead>
                 <tbody>
                   {visibleInquiries.map((inquiry) => (
-                    <tr key={inquiry._id} className="border-t border-slate-100 transition-colors hover:bg-[#15110f]">
+                    <tr key={inquiry._id} className="border-t border-slate-100 transition-colors hover:bg-slate-50">
                       <td className="px-6 py-5 md:px-8">
                         <div className="flex items-center gap-4">
                           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-xs font-semibold text-indigo-600">
@@ -993,15 +1021,28 @@ const Dashboard = () => {
                           {statusLabels[inquiry.status] || inquiry.status}
                         </span>
                       </td>
-                      <td className="px-6 py-5 text-right md:px-8">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedInquiry(inquiry)}
-                          className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                          aria-label={`Open actions for ${inquiry.name}`}
-                        >
-                          <MoreHorizontal className="h-5 w-5" aria-hidden="true" />
-                        </button>
+                      <td className="px-6 py-5 md:px-8">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedInquiry(inquiry)}
+                            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                            aria-label={`View full inquiry from ${inquiry.name}`}
+                          >
+                            <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
+                            View
+                          </button>
+                          <button
+                            type="button"
+                            disabled={deletingInquiryId === inquiry._id}
+                            onClick={() => handleDeleteInquiry(inquiry)}
+                            className="inline-flex items-center gap-2 rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-500 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500/20 disabled:opacity-60"
+                            aria-label={`Delete inquiry from ${inquiry.name}`}
+                          >
+                            <Trash2 className="h-4 w-4" aria-hidden="true" />
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -1087,6 +1128,26 @@ const Dashboard = () => {
                 <p className="text-slate-400">Country</p>
                 <p className="mt-1 font-medium text-slate-900">{selectedInquiry.country}</p>
               </div>
+              <div>
+                <p className="text-slate-400">Company</p>
+                <p className="mt-1 font-medium text-slate-900">{selectedInquiry.companyName}</p>
+              </div>
+              <div>
+                <p className="text-slate-400">Submitted</p>
+                <p className="mt-1 font-medium text-slate-900">{formatDate(selectedInquiry.createdAt)}</p>
+              </div>
+              <div>
+                <p className="text-slate-400">Current Status</p>
+                <span className={`mt-1 inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase ${statusClasses[selectedInquiry.status] || statusClasses.read}`}>
+                  {statusLabels[selectedInquiry.status] || selectedInquiry.status}
+                </span>
+              </div>
+              <div>
+                <p className="text-slate-400">Notification</p>
+                <p className="mt-1 font-medium capitalize text-slate-900">
+                  {selectedInquiry.notificationStatus || 'Not available'}
+                </p>
+              </div>
               <div className="sm:col-span-2">
                 <p className="text-slate-400">Job Title</p>
                 <p className="mt-1 font-medium text-slate-900">{selectedInquiry.jobTitle}</p>
@@ -1117,6 +1178,21 @@ const Dashboard = () => {
                   </button>
                 ))}
               </div>
+            </div>
+
+            <div className="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xs leading-relaxed text-slate-400">
+                Deleting an inquiry removes it from the admin list and dashboard records.
+              </p>
+              <button
+                type="button"
+                disabled={deletingInquiryId === selectedInquiry._id}
+                onClick={() => handleDeleteInquiry(selectedInquiry)}
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-500 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500/20 disabled:opacity-60"
+              >
+                <Trash2 className="h-4 w-4" aria-hidden="true" />
+                Delete Inquiry
+              </button>
             </div>
           </div>
         )}

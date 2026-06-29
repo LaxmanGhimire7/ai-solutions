@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import AdminSidebar from './AdminSidebar';
 import RouteBoundary from '@/components/shared/RouteBoundary';
@@ -8,8 +8,9 @@ import { connectAdmin, disconnectSocket, joinAdmin } from '@/api/chat';
 import { scheduleRoutePreload } from '@/utils/routePreload';
 
 const AdminLayout = () => {
-  const { isAuthenticated, logout, token } = useAuth();
+  const { endSession, isAuthenticated, logout, token } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(
     () => scheduleRoutePreload(['/admin/dashboard', '/admin/content', '/admin/chat']),
@@ -29,6 +30,32 @@ const AdminLayout = () => {
       disconnectSocket();
     };
   }, [isAuthenticated, token]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return undefined;
+
+    const idleLimit = 2 * 60 * 1000;
+    let timeoutId;
+
+    const handleIdleLogout = () => {
+      endSession('inactive');
+      navigate('/admin/login', { replace: true });
+    };
+
+    const resetIdleTimer = () => {
+      window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(handleIdleLogout, idleLimit);
+    };
+
+    const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'];
+    events.forEach((eventName) => window.addEventListener(eventName, resetIdleTimer, { passive: true }));
+    resetIdleTimer();
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      events.forEach((eventName) => window.removeEventListener(eventName, resetIdleTimer));
+    };
+  }, [endSession, isAuthenticated, navigate]);
 
   if (!isAuthenticated) {
     return <Navigate to="/admin/login" replace />;

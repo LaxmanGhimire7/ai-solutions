@@ -1,0 +1,52 @@
+erDiagram
+    ADMIN {
+        string name
+        string email
+        string password
+        string role
+    }
+
+    INQUIRY {
+        string name
+        string email
+        string phone
+        string company
+        string country
+        string jobTitle
+        string jobDetails
+        string status
+    }
+
+    CONTENT {
+        string title
+        string description
+        string imageUrl
+        string type
+        boolean published
+    }
+
+    TESTIMONIAL {
+        string authorName
+        string company
+        string quote
+        int rating
+        boolean published
+    }
+
+    CHAT_SESSION {
+        string customerName
+        string customerEmail
+        string status
+        int rating
+    }
+
+    CHAT_MESSAGE {
+        string sender
+        string message
+        datetime sentAt
+    }
+
+    ADMIN ||--o{ INQUIRY : manages
+    ADMIN ||--o{ CONTENT : manages
+    ADMIN ||--o{ CHAT_SESSION : handles
+    CHAT_SESSION ||--o{ CHAT_MESSAGE : contains

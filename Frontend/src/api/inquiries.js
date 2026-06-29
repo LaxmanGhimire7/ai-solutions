@@ -25,6 +25,11 @@ export const updateInquiryStatus = async (id, status) => {
   return response.data;
 };
 
+export const deleteInquiry = async (id) => {
+  const response = await api.delete(`/inquiries/${id}`);
+  return response.data;
+};
+
 export const exportCSV = async () => {
   const response = await api.get('/dashboard/export-csv', {
     responseType: 'blob',

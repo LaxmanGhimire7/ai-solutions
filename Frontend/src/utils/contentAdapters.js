@@ -27,6 +27,25 @@ export const adaptTestimonial = (testimonial) => ({
   createdAt: testimonial.createdAt,
 });
 
+export const getEventDetailId = (event, index = 0) => {
+  if (event.id || event._id) return String(event.id || event._id);
+
+  const titleSlug = String(event.title || 'event')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
+  return `sample-${index}-${titleSlug || 'event'}`;
+};
+
+export const adaptSampleEvent = (event, index) => ({
+  ...event,
+  id: getEventDetailId(event, index),
+  coverImage: event.coverImage || '',
+  registrationUrl: event.registrationUrl || '',
+});
+
 export const adaptEvent = (event) => {
   const eventDate = new Date(event.eventDate);
   const isUpcoming = eventDate.getTime() >= new Date().setHours(0, 0, 0, 0);
@@ -39,7 +58,10 @@ export const adaptEvent = (event) => {
     location: event.location || (event.type === 'online' ? 'Online' : 'To be confirmed'),
     description: event.description,
     type: isUpcoming ? 'Upcoming' : 'Past',
+    eventType: event.type || '',
     coverImage: event.coverImage || '',
+    registrationUrl: event.registrationUrl || '',
+    endDate: event.endDate || null,
     createdAt: event.createdAt,
   };
 };

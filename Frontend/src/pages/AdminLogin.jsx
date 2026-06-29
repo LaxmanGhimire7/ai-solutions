@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   ArrowLeft,
@@ -18,6 +18,7 @@ import { useAuth } from '@/hooks/useAuth';
 const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [sessionMessage, setSessionMessage] = useState('');
   const {
     register,
     handleSubmit,
@@ -25,6 +26,15 @@ const AdminLogin = () => {
   } = useForm();
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const reason = localStorage.getItem('ai_solutions_logout_reason');
+
+    if (reason === 'inactive') {
+      setSessionMessage('You were inactive for more than 2 minutes, so your admin session was logged out.');
+      localStorage.removeItem('ai_solutions_logout_reason');
+    }
+  }, []);
 
   const onSubmit = async (data) => {
     setIsLoading(true);
@@ -107,6 +117,12 @@ const AdminLogin = () => {
               <p className="mt-2 text-sm leading-relaxed text-slate-500">
                 Enter your administrator credentials to continue.
               </p>
+
+              {sessionMessage && (
+                <div className="mt-5 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm leading-relaxed text-amber-100">
+                  {sessionMessage}
+                </div>
+              )}
 
               <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5">
                 <div>

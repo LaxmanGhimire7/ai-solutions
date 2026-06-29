@@ -1,13 +1,14 @@
 import { ArrowUpRight, Clock3, MapPin } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Badge from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
 
-const EventCard = ({ title, date, time, location, description, type }) => {
+const EventCard = ({ title, date, time, location, description, type, to }) => {
   const parsedDate = new Date(date);
   const day = parsedDate.toLocaleDateString('en-GB', { day: '2-digit' });
   const month = parsedDate.toLocaleDateString('en-GB', { month: 'short' });
 
-  return (
+  const card = (
     <Card hoverable className="group flex flex-col gap-6 sm:flex-row sm:items-center">
       <div className="flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-xl border border-[#E95520]/25 bg-[#E95520]/10 text-center">
         <span className="text-2xl font-semibold text-[#F37A49]">{day}</span>
@@ -35,6 +36,14 @@ const EventCard = ({ title, date, time, location, description, type }) => {
         <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
       </span>
     </Card>
+  );
+
+  if (!to) return card;
+
+  return (
+    <Link to={to} className="block focus:outline-none focus:ring-2 focus:ring-[#E95520]/20">
+      {card}
+    </Link>
   );
 };
 
