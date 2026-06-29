@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { ArrowLeft, CalendarRange, Clock3, ExternalLink, MapPin } from 'lucide-react';
 import Button from '@/components/ui/Button';
@@ -14,6 +14,31 @@ const formatDate = (value) =>
     month: 'long',
     year: 'numeric',
   });
+
+const EventCoverImage = ({ src, title }) => {
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
+
+  if (src && !failed) {
+    return (
+      <img
+        src={src}
+        alt={title}
+        className="aspect-[4/3] w-full bg-slate-100 object-cover"
+        onError={() => setFailed(true)}
+      />
+    );
+  }
+
+  return (
+    <div className="flex aspect-[4/3] items-center justify-center bg-[#F5ECE6] text-[#E95520]">
+      <CalendarRange className="h-14 w-14" aria-hidden="true" />
+    </div>
+  );
+};
 
 const EventDetail = () => {
   const { eventId } = useParams();
@@ -78,13 +103,7 @@ const EventDetail = () => {
         <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
           <aside className="rounded-2xl border border-slate-200 bg-slate-50 p-6 md:p-8">
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-              {event.coverImage ? (
-                <img src={event.coverImage} alt={event.title} className="aspect-[4/3] w-full object-cover" />
-              ) : (
-                <div className="flex aspect-[4/3] items-center justify-center bg-[#F5ECE6] text-[#E95520]">
-                  <CalendarRange className="h-14 w-14" aria-hidden="true" />
-                </div>
-              )}
+              <EventCoverImage src={event.coverImage} title={event.title} />
             </div>
 
             <div className="mt-6 space-y-4">

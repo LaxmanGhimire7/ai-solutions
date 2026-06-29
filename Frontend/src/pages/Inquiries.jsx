@@ -108,11 +108,11 @@ const Inquiries = () => {
 
   const handleExport = async () => {
     try {
-      const blob = await exportCSV();
+      const { blob, filename } = await exportCSV();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'inquiries.csv';
+      link.download = filename.endsWith('.csv') ? filename : `${filename}.csv`;
       link.click();
       window.URL.revokeObjectURL(url);
       toast.success('CSV export ready');

@@ -30,9 +30,39 @@ export const deleteInquiry = async (id) => {
   return response.data;
 };
 
+const getFilenameFromDisposition = (value = '') => {
+  const match = value.match(/filename="?([^"]+)"?/i);
+  return match?.[1] || `inquiries-${new Date().toISOString().slice(0, 10)}.csv`;
+};
+
 export const exportCSV = async () => {
-  const response = await api.get('/dashboard/export-csv', {
+  const response = await api.get('/inquiries/export-csv', {
+    headers: {
+      Accept: 'text/csv',
+    },
     responseType: 'blob',
   });
-  return response.data;
+
+  const contentType = String(response.headers['content-type'] || response.data.type || '');
+
+  if (/json|xml|html/i.test(contentType)) {
+    const text = await response.data.text();
+    let message = 'CSV export failed. The server returned a non-CSV response.';
+
+    try {
+      const payload = JSON.parse(text);
+      message = payload.message || message;
+    } catch {
+      if (text.trim().startsWith('<')) {
+        message = 'CSV export failed. The server returned an HTML/XML response instead of CSV.';
+      }
+    }
+
+    throw new Error(message);
+  }
+
+  return {
+    blob: new Blob([response.data], { type: 'text/csv;charset=utf-8' }),
+    filename: getFilenameFromDisposition(response.headers['content-disposition']),
+  };
 };

@@ -83,8 +83,9 @@ class InquiryController {
   exportCsv = asyncHandler(async (req, res) => {
     const csv = await this.service.exportCsv();
     const filename = `inquiries-${new Date().toISOString().split('T')[0]}.csv`;
-    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('X-Content-Type-Options', 'nosniff');
     res.status(200).send(csv);
   });
 }
