@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { CheckCircle2, Filter, MoreHorizontal, RefreshCw, Search, Trash2 } from 'lucide-react';
+import { CheckCircle2, Download, Filter, MoreHorizontal, RefreshCw, Search, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/ui/Modal';
 import {
   deleteInquiry,
+  exportCSV,
   getInquiries,
   updateInquiryStatus,
 } from '@/api/inquiries';
@@ -105,6 +106,21 @@ const Inquiries = () => {
     toast.success('Inquiries refreshed');
   };
 
+  const handleExport = async () => {
+    try {
+      const blob = await exportCSV();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'inquiries.csv';
+      link.click();
+      window.URL.revokeObjectURL(url);
+      toast.success('CSV export ready');
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message || 'Unable to export CSV');
+    }
+  };
+
   const handleStatusChange = async (status) => {
     if (!selectedInquiry) return;
 
@@ -158,14 +174,24 @@ const Inquiries = () => {
                 View full customer inquiries, update follow-up status, and remove old records.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={handleRefresh}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold text-[#F5ECE6] transition-colors hover:bg-white/[0.08]"
-            >
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} aria-hidden="true" />
-              Refresh
-            </button>
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={handleExport}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold text-[#F5ECE6] transition-colors hover:bg-white/[0.08]"
+              >
+                <Download className="h-4 w-4" aria-hidden="true" />
+                Export CSV
+              </button>
+              <button
+                type="button"
+                onClick={handleRefresh}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold text-[#F5ECE6] transition-colors hover:bg-white/[0.08]"
+              >
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} aria-hidden="true" />
+                Refresh
+              </button>
+            </div>
           </div>
         </section>
 

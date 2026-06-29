@@ -19,6 +19,7 @@ const emailUtil = require('./utils/email');
 
 const app = express();
 const server = http.createServer(app);
+app.set('trust proxy', 1);
 const enableRealtimeChat = process.env.ENABLE_REALTIME_CHAT === 'true';
 const normaliseOrigin = (origin) => origin.trim().replace(/\/+$/, '');
 const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
