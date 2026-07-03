@@ -12,6 +12,7 @@ import {
   updateContent,
 } from '@/api/content';
 import { uploadImage } from '@/api/uploads';
+import { resolveMediaUrl } from '@/utils/media';
 
 const contentTypes = ['articles', 'events', 'services', 'projects', 'testimonials', 'gallery'];
 
@@ -248,6 +249,7 @@ const ContentManager = () => {
 
     if (field.type === 'image') {
       const imageValue = watch(field.name);
+      const previewUrl = resolveMediaUrl(imageValue);
 
       return (
         <div key={field.name} className="space-y-2 md:col-span-2">
@@ -271,7 +273,7 @@ const ContentManager = () => {
             }`}
           >
             {imageValue ? (
-              <img src={imageValue} alt={field.label} className="h-44 w-full rounded-xl object-cover" />
+              <img src={previewUrl} alt={field.label} className="h-44 w-full rounded-xl object-cover" />
             ) : (
               <div className="flex h-36 w-full flex-col items-center justify-center rounded-xl bg-white">
                 <ImagePlus className="h-8 w-8 text-indigo-500" aria-hidden="true" />
@@ -427,7 +429,7 @@ const ContentManager = () => {
                       <div className="flex items-center gap-3">
                         {item.imageUrl || item.coverImage || item.authorAvatar ? (
                           <img
-                            src={item.imageUrl || item.coverImage || item.authorAvatar}
+                            src={resolveMediaUrl(item.imageUrl || item.coverImage || item.authorAvatar)}
                             alt={item.title || item.authorName}
                             className="h-12 w-12 rounded-xl object-cover"
                           />

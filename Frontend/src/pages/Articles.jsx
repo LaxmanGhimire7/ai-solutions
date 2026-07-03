@@ -5,7 +5,7 @@ import Card from '@/components/ui/Card';
 import Modal from '@/components/ui/Modal';
 import PageHero from '@/components/shared/PageHero';
 import SectionHeading from '@/components/shared/SectionHeading';
-import { articles as sampleArticles } from '@/data/siteData';
+import { articles as sampleArticles, getFallbackImage } from '@/data/siteData';
 import { usePublicContent, mergePublishedWithSamples } from '@/hooks/usePublicContent';
 import { adaptArticle } from '@/utils/contentAdapters';
 
@@ -85,14 +85,14 @@ const Articles = () => {
               >
                 <Card hoverable className="group h-full overflow-hidden p-0">
                   <div className={`relative overflow-hidden border-b border-slate-100 bg-slate-50 ${index === 0 ? 'h-60' : 'h-48'}`}>
-                    {article.coverImage && (
+                    {(article.coverImage || getFallbackImage('articles', index)) && (
                       <img
-                        src={article.coverImage}
+                        src={article.coverImage || getFallbackImage('articles', index)}
                         alt=""
                         className="absolute inset-0 h-full w-full object-cover"
                       />
                     )}
-                    {!article.coverImage && (
+                    {!article.coverImage && !getFallbackImage('articles', index) && (
                       <>
                     <div className="absolute -left-12 top-8 h-32 w-56 rounded-2xl border border-indigo-100 bg-indigo-50" />
                     <div className="absolute -right-10 bottom-6 h-28 w-48 rounded-2xl border border-slate-200 bg-white" />
@@ -138,6 +138,13 @@ const Articles = () => {
       <Modal isOpen={Boolean(selected)} onClose={() => setSelected(null)} title={selected?.title}>
         {selected && (
           <div>
+            {selected.coverImage && (
+              <img
+                src={selected.coverImage}
+                alt=""
+                className="mb-5 aspect-[16/9] w-full rounded-xl object-cover"
+              />
+            )}
             <p className="inline-flex items-center gap-2 text-xs font-medium text-slate-400">
               <CalendarDays className="h-4 w-4" aria-hidden="true" />
               {formatDate(selected.date)}

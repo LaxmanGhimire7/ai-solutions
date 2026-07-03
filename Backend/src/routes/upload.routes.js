@@ -1,9 +1,9 @@
 const crypto = require('crypto');
-const fs = require('fs/promises');
 const path = require('path');
 const router = require('express').Router();
 
 const authenticateAdmin = require('../middleware/authenticateAdmin');
+const ImageAsset = require('../models/ImageAsset.model');
 const ApiResponse = require('../utils/ApiResponse');
 
 const allowedMimeTypes = {
@@ -33,9 +33,6 @@ router.post('/image', authenticateAdmin, async (req, res, next) => {
       return res.status(400).json(ApiResponse.error('Image must be 2MB or smaller', 400));
     }
 
-    const uploadDir = path.join(__dirname, '..', '..', 'uploads', 'images');
-    await fs.mkdir(uploadDir, { recursive: true });
-
     const safeBaseName = path
       .parse(fileName)
       .name
@@ -45,10 +42,21 @@ router.post('/image', authenticateAdmin, async (req, res, next) => {
       .slice(0, 60) || 'image';
 
     const filename = `${safeBaseName}-${Date.now()}-${crypto.randomBytes(4).toString('hex')}.${allowedMimeTypes[mimeType]}`;
-    const filePath = path.join(uploadDir, filename);
-    await fs.writeFile(filePath, buffer);
 
-    const imageUrl = `${req.protocol}://${req.get('host')}/uploads/images/${filename}`;
+    await ImageAsset.findOneAndUpdate(
+      { filename },
+      {
+        filename,
+        originalName: fileName,
+        mimeType,
+        size: buffer.length,
+        data: buffer,
+        isActive: true,
+      },
+      { upsert: true, new: true, runValidators: true }
+    );
+
+    const imageUrl = `/uploads/images/${filename}`;
 
     res.status(201).json(ApiResponse.success({ imageUrl }, 'Image uploaded successfully', 201));
   } catch (error) {

@@ -22,7 +22,7 @@ const SectionHeading = ({
     >
       <div className="max-w-3xl">
         {eyebrow && (
-          <p className={`text-xs font-semibold uppercase ${dark ? 'text-[#F37A49]' : 'text-[#E95520]'}`}>
+          <p className={`text-xs font-semibold uppercase ${dark ? 'text-[#F37A49]' : 'text-[#B84216]'}`}>
             {eyebrow}
           </p>
         )}

@@ -1,0 +1,64 @@
+flowchart LR
+    User[User Browser]:::external
+    Admin[Admin Browser]:::external
+
+    subgraph Frontend["Frontend - React / Vite"]
+        direction TB
+        Public[Public Website]:::box
+        Chat[Chatbot and Live Chat]:::box
+        Dashboard[Admin Dashboard]:::box
+        Inquiry[Inquiry Handling]:::box
+        Content[Content Manager]:::box
+    end
+
+    subgraph Backend["Backend - Node.js / Express"]
+        direction TB
+        Socket[Socket.IO Chat]:::box
+        Auth[JWT Authentication]:::box
+        Uploads[Image Uploads and Serving]:::box
+        API[REST API Routes]:::box
+        CSV[CSV Export]:::box
+        Email[Email Notification]:::box
+    end
+
+    subgraph Data["Data Layer"]
+        direction TB
+        Images[(ImageAsset Collection)]:::database
+        Mongo[(MongoDB)]:::database
+    end
+
+    User --> Public
+    User --> Chat
+    Admin --> Dashboard
+    Admin --> Inquiry
+    Admin --> Content
+
+    Public --> API
+    Chat --> Socket
+    Chat --> API
+    Dashboard --> API
+    Inquiry --> API
+    Content --> API
+
+    API --> Auth
+    API --> Uploads
+    API --> CSV
+    API --> Email
+    Socket --> Mongo
+    Auth --> Mongo
+    Uploads --> Images
+    Uploads --> Mongo
+    CSV --> Mongo
+    Email --> Mongo
+    API --> Mongo
+    Images --> Mongo
+
+    classDef external fill:#ffffff,stroke:#000000,color:#000000,stroke-width:2px;
+    classDef box fill:#ffffff,stroke:#000000,color:#000000,stroke-width:2px;
+    classDef database fill:#ffffff,stroke:#000000,color:#000000,stroke-width:2px;
+
+    style Frontend fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000;
+    style Backend fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000;
+    style Data fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000;
+
+    linkStyle default stroke:#000000,stroke-width:2px;

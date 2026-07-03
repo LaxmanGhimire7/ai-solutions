@@ -5,7 +5,7 @@ import Modal from '@/components/ui/Modal';
 import GalleryImage from '@/components/shared/GalleryImage';
 import PageHero from '@/components/shared/PageHero';
 import SectionHeading from '@/components/shared/SectionHeading';
-import { gallery as sampleGallery } from '@/data/siteData';
+import { gallery as sampleGallery, getFallbackImage } from '@/data/siteData';
 import { usePublicContent, mergePublishedWithSamples } from '@/hooks/usePublicContent';
 import { adaptGalleryItem } from '@/utils/contentAdapters';
 
@@ -71,8 +71,12 @@ const Gallery = () => {
       <Modal isOpen={Boolean(activeImage)} onClose={() => setActiveIndex(null)} title={activeImage?.alt}>
         {activeImage && (
           <div className="space-y-5">
-            {activeImage.src ? (
-              <img src={activeImage.src} alt={activeImage.alt} className="aspect-square w-full rounded-xl object-cover" />
+            {activeImage.src || getFallbackImage('gallery', activeIndex) ? (
+              <img
+                src={activeImage.src || getFallbackImage('gallery', activeIndex)}
+                alt={activeImage.alt}
+                className="aspect-square w-full rounded-xl object-cover"
+              />
             ) : (
               <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
                 <div className="absolute -left-14 top-12 h-32 w-56 rounded-2xl border border-indigo-100 bg-indigo-50" />

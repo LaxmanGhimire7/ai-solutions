@@ -59,10 +59,10 @@ const Footer = () => {
         <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr_0.8fr_1.2fr]">
           <div>
             <Link to="/" className="flex items-center gap-3 text-xl font-semibold text-[#F5ECE6]">
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#E95520] text-sm text-white">AI</span>
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#B84216] text-sm text-white">AI</span>
               AI-Solutions
             </Link>
-            <p className="mt-5 max-w-sm text-sm leading-relaxed text-[#8F847D]">
+            <p className="mt-5 max-w-sm text-sm leading-relaxed text-[#BDB4AE]">
               Building clearer client experiences through modern web systems, structured communication, and useful admin insight.
             </p>
             <div className="mt-7 flex gap-3">
@@ -80,7 +80,7 @@ const Footer = () => {
               <ul className="mt-5 space-y-4">
                 {column.links.map((item) => (
                   <li key={item.label}>
-                    <Link to={item.to} className="text-sm text-[#8F847D] transition-colors hover:text-[#F37A49]">
+                    <Link to={item.to} className="text-sm text-[#BDB4AE] transition-colors hover:text-[#F37A49]">
                       {item.label}
                     </Link>
                   </li>
@@ -91,14 +91,14 @@ const Footer = () => {
 
           <div>
             <h3 className="text-sm font-semibold uppercase text-[#F5ECE6]">Contact</h3>
-            <div className="mt-5 space-y-4 text-sm text-[#8F847D]">
+            <div className="mt-5 space-y-4 text-sm text-[#BDB4AE]">
               <p className="flex gap-3"><Mail className="h-4 w-4 shrink-0 text-[#E95520]" />info@ai-solutions.com</p>
               <p className="flex gap-3"><Phone className="h-4 w-4 shrink-0 text-[#E95520]" />+44 1234 567890</p>
               <p className="flex gap-3"><MapPin className="h-4 w-4 shrink-0 text-[#E95520]" />London, United Kingdom</p>
             </div>
             <Link
               to="/contact"
-              className="mt-7 inline-flex items-center gap-2 rounded-lg bg-[#E95520] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#C94316]"
+              className="mt-7 inline-flex items-center gap-2 rounded-lg bg-[#B84216] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#96300F]"
             >
               Start a Project
               <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
@@ -106,7 +106,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-16 flex flex-col justify-between gap-3 border-t border-white/10 pt-7 text-xs text-[#675F5A] md:flex-row">
+        <div className="mt-16 flex flex-col justify-between gap-3 border-t border-white/10 pt-7 text-xs text-[#BDB4AE] md:flex-row">
           <span>&copy; {new Date().getFullYear()} AI-Solutions. All rights reserved.</span>
           <span>Web-based Client Interaction System</span>
         </div>

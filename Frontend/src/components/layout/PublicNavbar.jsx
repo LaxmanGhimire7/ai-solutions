@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
-import Button from '@/components/ui/Button';
 
 const links = [
   { label: 'Services', to: '/services' },
@@ -22,7 +21,7 @@ const PublicNavbar = () => {
           to="/"
           className="flex items-center gap-3 font-semibold text-[#F5ECE6] focus:outline-none focus:ring-2 focus:ring-[#E95520]/30"
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E95520] text-sm font-semibold text-white">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#B84216] text-sm font-semibold text-white">
             AI
           </span>
           <span className="text-base">AI-Solutions</span>
@@ -35,7 +34,7 @@ const PublicNavbar = () => {
               to={link.to}
               className={({ isActive }) =>
                 `rounded-md px-4 py-2.5 text-sm font-medium transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-[#E95520]/20 ${
-                  isActive ? 'bg-[#E95520] text-white' : 'text-[#A89D96]'
+                  isActive ? 'bg-[#B84216] text-white' : 'text-[#BDB4AE]'
                 }`
               }
             >
@@ -46,12 +45,10 @@ const PublicNavbar = () => {
 
         <Link
           to="/contact"
-          className="hidden lg:block"
+          className="hidden items-center justify-center gap-2 rounded-lg bg-[#B84216] px-4 py-2 text-sm font-medium text-white shadow-[0_12px_30px_rgba(184,66,22,0.22)] transition-colors hover:bg-[#96300F] focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:ring-offset-2 lg:inline-flex"
         >
-          <Button size="sm">
-            Request Callback
-            <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-          </Button>
+          Request Callback
+          <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
         </Link>
 
         <button
@@ -74,7 +71,7 @@ const PublicNavbar = () => {
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
                   `rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
-                    isActive ? 'bg-[#E95520] text-white' : 'text-[#C8BDB6] hover:bg-white/[0.06]'
+                    isActive ? 'bg-[#B84216] text-white' : 'text-[#C8BDB6] hover:bg-white/[0.06]'
                   }`
                 }
               >
@@ -82,7 +79,9 @@ const PublicNavbar = () => {
               </NavLink>
             ))}
             <Link to="/contact" onClick={() => setOpen(false)} className="mt-2">
-              <Button size="sm" className="w-full">Request Callback</Button>
+              <span className="inline-flex w-full items-center justify-center rounded-lg bg-[#B84216] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#96300F]">
+                Request Callback
+              </span>
             </Link>
           </nav>
         </div>

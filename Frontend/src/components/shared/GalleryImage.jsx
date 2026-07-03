@@ -1,6 +1,9 @@
 import { Expand, Image as ImageIcon } from 'lucide-react';
+import { getFallbackImage } from '@/data/siteData';
 
 const GalleryImage = ({ src, alt, onClick }) => {
+  const image = src || getFallbackImage('gallery');
+
   return (
     <button
       type="button"
@@ -8,9 +11,9 @@ const GalleryImage = ({ src, alt, onClick }) => {
       className="group relative block w-full overflow-hidden rounded-xl border border-slate-200 bg-white p-2 shadow-[0_8px_24px_rgba(15,23,42,0.05)] focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
       aria-label={`Open ${alt}`}
     >
-      {src ? (
+      {image ? (
         <img
-          src={src}
+          src={image}
           alt={alt}
           className="aspect-square w-full rounded-lg object-cover transition-transform duration-300 group-hover:scale-[1.02]"
         />

@@ -3,19 +3,21 @@ import { ArrowUpRight, Clock3, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Badge from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
+import { getFallbackImage } from '@/data/siteData';
 
 const EventThumbnail = ({ coverImage, day, month, title }) => {
   const [failed, setFailed] = useState(false);
+  const image = coverImage || getFallbackImage('events');
 
   useEffect(() => {
     setFailed(false);
-  }, [coverImage]);
+  }, [image]);
 
-  if (coverImage && !failed) {
+  if (image && !failed) {
     return (
       <div className="h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-[#E95520]/25 bg-[#F5ECE6]">
         <img
-          src={coverImage}
+          src={image}
           alt={title}
           className="h-full w-full object-cover"
           onError={() => setFailed(true)}

@@ -1,5 +1,6 @@
 erDiagram
     ADMIN {
+        ObjectId id PK
         string name
         string email
         string password
@@ -7,46 +8,62 @@ erDiagram
     }
 
     INQUIRY {
+        ObjectId id PK
         string name
         string email
         string phone
-        string company
-        string country
+        string companyName
         string jobTitle
         string jobDetails
         string status
+        datetime createdAt
     }
 
-    CONTENT {
+    CONTENT_ITEM {
+        ObjectId id PK
+        string type
         string title
         string description
         string imageUrl
-        string type
         boolean published
     }
 
+    IMAGE_ASSET {
+        ObjectId id PK
+        string filename
+        string mimeType
+        int size
+    }
+
     TESTIMONIAL {
+        ObjectId id PK
         string authorName
-        string company
+        string authorCompany
         string quote
         int rating
         boolean published
     }
 
     CHAT_SESSION {
+        ObjectId id PK
         string customerName
         string customerEmail
         string status
-        int rating
+        int unreadCount
     }
 
     CHAT_MESSAGE {
+        ObjectId id PK
         string sender
         string message
         datetime sentAt
     }
 
-    ADMIN ||--o{ INQUIRY : manages
-    ADMIN ||--o{ CONTENT : manages
-    ADMIN ||--o{ CHAT_SESSION : handles
+    ADMIN ||--o{ INQUIRY : handles
+    ADMIN ||--o{ CONTENT_ITEM : manages
+    ADMIN ||--o{ TESTIMONIAL : moderates
+    ADMIN ||--o{ CHAT_SESSION : replies
+
+    CONTENT_ITEM }o--o| IMAGE_ASSET : uses
+    TESTIMONIAL }o--o| IMAGE_ASSET : uses
     CHAT_SESSION ||--o{ CHAT_MESSAGE : contains

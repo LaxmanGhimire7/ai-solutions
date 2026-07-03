@@ -1,0 +1,31 @@
+flowchart LR
+    DB[(Inquiry<br/>Database)]:::database
+    Admin[Admin]:::admin
+    User[User]:::user
+
+    subgraph System[" "]
+        direction LR
+        P1((Submit<br/>Inquiry)):::process
+        P2((Save<br/>Inquiry)):::process
+        P3((Review<br/>Inquiry)):::process
+        P4((Update<br/>Status)):::process
+    end
+
+    P1 -->|Form data| P2
+    P2 -->|Saved record| DB
+    DB -->|Inquiry list| P3
+    P3 -->|Full details| Admin
+    Admin -->|Action| P4
+    P4 -->|Reply / CSV| Admin
+    P4 -->|Status update| DB
+
+    User -->|Inquiry details| P1
+    P2 -->|Confirmation| User
+
+    classDef process fill:#F5A623,stroke:#D88A00,color:#FFFFFF,stroke-width:2px;
+    classDef database fill:#FFF2B8,stroke:#D9A400,color:#222222,stroke-width:2px;
+    classDef user fill:#3F86DF,stroke:#1E5FB8,color:#FFFFFF,stroke-width:2px;
+    classDef admin fill:#E10B00,stroke:#A80000,color:#FFFFFF,stroke-width:2px;
+
+    style System fill:#FFF3C9,stroke:#E2B23B,stroke-width:1px,color:#FFF3C9;
+    linkStyle default stroke:#222222,stroke-width:1.5px;

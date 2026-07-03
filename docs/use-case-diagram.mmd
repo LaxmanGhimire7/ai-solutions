@@ -1,0 +1,27 @@
+flowchart LR
+    User([User])
+    Admin([Admin])
+
+    subgraph System["AI-Solutions System"]
+        direction TB
+        UC1((View website<br/>content))
+        UC2((View events<br/>and gallery))
+        UC3((Submit<br/>inquiry))
+        UC4((Use chatbot<br/>and reviews))
+        UC5((Login /<br/>Logout))
+        UC6((View<br/>dashboard))
+        UC7((Handle<br/>inquiries))
+        UC8((Manage<br/>content))
+        UC9((Export<br/>CSV report))
+    end
+
+    User --> UC1
+    User --> UC2
+    User --> UC3
+    User --> UC4
+
+    Admin --> UC5
+    Admin --> UC6
+    Admin --> UC7
+    Admin --> UC8
+    Admin --> UC9

@@ -25,7 +25,7 @@ import {
   testimonials as sampleTestimonials,
 } from '@/data/siteData';
 import { usePublicContent, mergePublishedWithSamples } from '@/hooks/usePublicContent';
-import { adaptProject, adaptTestimonial } from '@/utils/contentAdapters';
+import { adaptProject, adaptService, adaptTestimonial } from '@/utils/contentAdapters';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -93,9 +93,7 @@ const Home = () => {
     () =>
       mergePublishedWithSamples(
         publishedServices.map((service, index) => ({
-          id: service._id,
-          title: service.title,
-          description: service.description,
+          ...adaptService(service, index),
           icon: sampleServices[index % sampleServices.length]?.icon,
         })),
         sampleServices.map((service, index) => ({ ...service, id: `sample-service-${index}` })),
@@ -204,11 +202,12 @@ const Home = () => {
             </p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Link to="/contact" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto">
-                  Start an Inquiry
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Button>
+              <Link
+                to="/contact"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#B84216] px-8 py-3 text-base font-medium text-white shadow-[0_12px_30px_rgba(184,66,22,0.22)] transition-all hover:bg-[#96300F] focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:ring-offset-2 sm:w-auto"
+              >
+                Start an Inquiry
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
               <Link to="/projects" className="w-full sm:w-auto">
                 <Button variant="secondary" size="lg" className="w-full sm:w-auto">
@@ -253,14 +252,14 @@ const Home = () => {
               const isOrange = card.tone === 'orange';
               const isBlack = card.tone === 'black';
               const textColor = isOrange || isBlack ? 'text-white' : 'text-black';
-              const mutedColor = isOrange ? 'text-orange-100/75' : isBlack ? 'text-[#A89D96]' : 'text-[#625952]';
+              const mutedColor = isOrange ? 'text-[#FFF0E8]' : isBlack ? 'text-[#BDB4AE]' : 'text-[#625952]';
 
               return (
                 <article
                   key={card.title}
                   className={`stack-card overflow-hidden rounded-[28px] border md:sticky ${
                     isOrange
-                      ? 'border-[#E95520] bg-[#E95520]'
+                      ? 'border-[#9F3612] bg-[#9F3612]'
                       : isBlack
                         ? 'border-black bg-black'
                         : 'border-black/15 bg-[#FFFDFC]'
@@ -269,7 +268,9 @@ const Home = () => {
                 >
                   <div className={`grid min-h-[520px] items-center gap-10 p-7 md:p-12 lg:grid-cols-2 ${index % 2 === 1 ? 'lg:[&>div:first-child]:order-2' : ''}`}>
                     <div>
-                      <p className={`text-xs font-semibold uppercase ${isOrange ? 'text-white/70' : 'text-[#E95520]'}`}>
+                      <p className={`text-xs font-semibold uppercase ${
+                        isOrange ? 'text-white' : isBlack ? 'text-[#F37A49]' : 'text-[#B84216]'
+                      }`}>
                         {card.eyebrow}
                       </p>
                       <h2 className={`mt-5 text-4xl font-semibold leading-tight md:text-5xl ${textColor}`}>{card.title}</h2>
@@ -283,14 +284,14 @@ const Home = () => {
                               key={feature.label}
                               className={`flex items-center gap-3 rounded-xl border p-3 ${
                                 isOrange
-                                  ? 'border-white/20 bg-white/10'
+                                  ? 'border-white/35 bg-black/15'
                                   : isBlack
                                     ? 'border-white/15 bg-white/[0.05]'
                                     : 'border-black/10 bg-black/[0.035]'
                               }`}
                             >
                               <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
-                                isOrange ? 'bg-white text-[#E95520]' : 'bg-[#E95520] text-white'
+                                isOrange ? 'bg-white text-[#9F3612]' : 'bg-[#B84216] text-white'
                               }`}>
                                 <Icon className="h-5 w-5" aria-hidden="true" />
                               </span>
@@ -373,7 +374,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="orange-grid bg-[#E95520] px-4 py-20 text-white sm:px-6 md:py-28 lg:px-8">
+      <section className="orange-grid bg-[#9F3612] px-4 py-20 text-white sm:px-6 md:py-28 lg:px-8">
         <motion.div
           className="mx-auto max-w-6xl text-center"
           initial={{ opacity: 0, scale: 0.94 }}
@@ -381,9 +382,9 @@ const Home = () => {
           viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.65 }}
         >
-          <p className="text-xs font-semibold uppercase text-white/65">Ready to begin?</p>
+          <p className="text-xs font-semibold uppercase text-white">Ready to begin?</p>
           <h2 className="mt-4 text-4xl font-semibold leading-tight md:text-7xl">Make the next client conversation easier.</h2>
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-orange-100/80">
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-[#FFF0E8]">
             Send your project requirements and let the team review the best direction for your system.
           </p>
           <div className="mt-9 flex justify-center">

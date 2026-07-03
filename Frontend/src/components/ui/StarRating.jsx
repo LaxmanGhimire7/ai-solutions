@@ -2,7 +2,7 @@ import { Star } from 'lucide-react';
 
 const StarRating = ({ rating, maxStars = 5 }) => {
   return (
-    <div className="flex items-center gap-1" aria-label={`${rating} out of ${maxStars} stars`}>
+    <div className="flex items-center gap-1" role="img" aria-label={`${rating} out of ${maxStars} stars`}>
       {Array.from({ length: maxStars }).map((_, index) => {
         const filled = index < rating;
 

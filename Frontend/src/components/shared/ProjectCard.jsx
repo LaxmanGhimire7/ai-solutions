@@ -1,14 +1,17 @@
 import { ArrowUpRight, PanelsTopLeft } from 'lucide-react';
 import Badge from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
+import { getFallbackImage } from '@/data/siteData';
 
 const ProjectCard = ({ industry, title, description, imageUrl }) => {
+  const cardImage = imageUrl || getFallbackImage('projects');
+
   return (
     <Card hoverable className="group overflow-hidden p-0">
       <div className="relative h-52 overflow-hidden border-b border-slate-100 bg-slate-50 p-4">
-        {imageUrl ? (
+        {cardImage ? (
           <img
-            src={imageUrl}
+            src={cardImage}
             alt={title}
             className="h-full w-full rounded-xl object-cover transition-transform duration-300 group-hover:scale-[1.02]"
           />

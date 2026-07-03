@@ -4,7 +4,7 @@ import { ArrowLeft, CalendarRange, Clock3, ExternalLink, MapPin } from 'lucide-r
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import PageHero from '@/components/shared/PageHero';
-import { events as sampleEvents } from '@/data/siteData';
+import { events as sampleEvents, getFallbackImage } from '@/data/siteData';
 import { usePublicContent, mergePublishedWithSamples } from '@/hooks/usePublicContent';
 import { adaptEvent, adaptSampleEvent } from '@/utils/contentAdapters';
 
@@ -17,15 +17,16 @@ const formatDate = (value) =>
 
 const EventCoverImage = ({ src, title }) => {
   const [failed, setFailed] = useState(false);
+  const image = src || getFallbackImage('events');
 
   useEffect(() => {
     setFailed(false);
-  }, [src]);
+  }, [image]);
 
-  if (src && !failed) {
+  if (image && !failed) {
     return (
       <img
-        src={src}
+        src={image}
         alt={title}
         className="aspect-[4/3] w-full bg-slate-100 object-cover"
         onError={() => setFailed(true)}

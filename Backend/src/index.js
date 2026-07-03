@@ -14,6 +14,7 @@ const { Server } = require('socket.io');
 
 const routes = require('./routes');
 const errorHandler = require('./middleware/errorHandler');
+const ImageAsset = require('./models/ImageAsset.model');
 const socketUtil = require('./utils/socket');
 const emailUtil = require('./utils/email');
 
@@ -222,6 +223,22 @@ app.use(rateLimit({
   legacyHeaders: false,
 }));
 
+app.get('/uploads/images/:filename', async (req, res, next) => {
+  try {
+    const filename = path.basename(req.params.filename || '');
+    const image = await ImageAsset.findOne({ filename, isActive: true });
+
+    if (!image) {
+      return res.status(404).json({ success: false, statusCode: 404, message: 'Image not found' });
+    }
+
+    res.setHeader('Content-Type', image.mimeType);
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    return res.status(200).send(image.data);
+  } catch (error) {
+    return next(error);
+  }
+});
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 app.use('/api', routes);
 

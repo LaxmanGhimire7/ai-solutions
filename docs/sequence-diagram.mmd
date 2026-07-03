@@ -1,0 +1,61 @@
+sequenceDiagram
+    actor User
+    participant Website as AI-Solutions Website
+    participant API as Backend API
+    participant DB as MongoDB Database
+    participant ImageStore as Image Assets
+    actor Admin
+
+    User->>Website: Open public website
+    Website->>API: Request published content
+    API->>DB: Fetch services, projects, articles, events, gallery and reviews
+    DB-->>API: Return content
+    API-->>Website: Send public content
+    Website-->>User: Display website pages
+
+    User->>Website: Open event detail page
+    Website->>API: Request selected event
+    API->>DB: Fetch event details and cover image URL
+    API-->>Website: Send event details
+    Website->>ImageStore: Load uploaded event image
+    ImageStore-->>Website: Return image file
+    Website-->>User: Show full event details
+
+    User->>Website: Submit inquiry form
+    Website->>API: Send inquiry details
+    API->>API: Validate form data
+    API->>DB: Save inquiry
+    DB-->>API: Inquiry saved
+    API-->>Website: Show success response
+
+    Admin->>Website: Login to admin panel
+    Website->>API: Send credentials
+    API->>DB: Verify admin account
+    DB-->>API: Return admin data
+    API->>API: Compare hashed password and create token
+    API-->>Website: Send JWT token
+    Website-->>Admin: Open admin dashboard
+
+    Admin->>Website: Open inquiry handling page
+    Website->>API: Request inquiries
+    API->>DB: Fetch inquiry records
+    DB-->>API: Return inquiry records
+    API-->>Website: Send inquiry list
+    Website-->>Admin: Display inquiries
+
+    Admin->>Website: Update inquiry status or delete inquiry
+    Website->>API: Send update request
+    API->>DB: Update database record
+    DB-->>API: Update completed
+    API-->>Website: Return updated data
+    Website-->>Admin: Display updated result
+
+    Admin->>Website: Export inquiry CSV
+    Website->>API: Request CSV export
+    API->>DB: Fetch inquiry export data
+    DB-->>API: Return inquiry data
+    API-->>Website: Download CSV file
+    Website-->>Admin: Save CSV file
+
+    Note over Admin,Website: If admin is inactive for more than 2 minutes
+    Website-->>Admin: Logout and redirect to login page

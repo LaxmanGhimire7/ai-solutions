@@ -1,13 +1,38 @@
 const Joi = require('joi');
 const ApiResponse = require('../utils/ApiResponse');
 
+const mediaPathOrUrl = Joi.string()
+  .trim()
+  .max(1000)
+  .custom((value, helpers) => {
+    if (!value) return value;
+
+    if (/^https?:\/\//i.test(value)) {
+      try {
+        new URL(value);
+        return value;
+      } catch {
+        return helpers.error('any.invalid');
+      }
+    }
+
+    if (/^\/?(uploads|images)\//i.test(value)) {
+      return value;
+    }
+
+    return helpers.error('any.invalid');
+  }, 'media URL or project media path')
+  .messages({
+    'any.invalid': '{{#label}} must be a valid URL or project media path',
+  });
+
 // ─── Article ──────────────────────────────────────────────────────────────────
 const articleCreate = Joi.object({
   title: Joi.string().trim().max(200).required(),
   slug: Joi.string().trim().max(200).lowercase().optional(),
   summary: Joi.string().trim().max(500).required(),
   content: Joi.string().trim().max(50000).required(),
-  coverImage: Joi.string().trim().uri().allow('').optional(),
+  coverImage: mediaPathOrUrl.allow('').optional(),
   tags: Joi.array().items(Joi.string().trim().max(50)).max(10).optional(),
   published: Joi.boolean().optional(),
 });
@@ -21,7 +46,7 @@ const serviceCreate = Joi.object({
   title: Joi.string().trim().max(200).required(),
   description: Joi.string().trim().max(3000).required(),
   icon: Joi.string().trim().max(100).allow('').optional(),
-  imageUrl: Joi.string().trim().uri().allow('').optional(),
+  imageUrl: mediaPathOrUrl.allow('').optional(),
   order: Joi.number().integer().min(0).optional(),
   published: Joi.boolean().optional(),
 });
@@ -36,7 +61,7 @@ const projectCreate = Joi.object({
   description: Joi.string().trim().max(5000).required(),
   clientName: Joi.string().trim().max(150).allow('').optional(),
   industry: Joi.string().trim().max(100).allow('').optional(),
-  imageUrl: Joi.string().trim().uri().allow('').optional(),
+  imageUrl: mediaPathOrUrl.allow('').optional(),
   technologies: Joi.array().items(Joi.string().trim().max(50)).max(15).optional(),
   outcome: Joi.string().trim().max(1000).allow('').optional(),
   published: Joi.boolean().optional(),
@@ -51,7 +76,7 @@ const projectUpdate = projectCreate.fork(
 const eventCreate = Joi.object({
   title: Joi.string().trim().max(200).required(),
   description: Joi.string().trim().max(3000).required(),
-  coverImage: Joi.string().trim().uri().allow('').optional(),
+  coverImage: mediaPathOrUrl.allow('').optional(),
   location: Joi.string().trim().max(200).allow('').optional(),
   eventDate: Joi.date().required(),
   endDate: Joi.date().min(Joi.ref('eventDate')).optional().allow(null),
@@ -69,7 +94,7 @@ const eventUpdate = eventCreate.fork(
 const galleryCreate = Joi.object({
   title: Joi.string().trim().max(200).required(),
   description: Joi.string().trim().max(500).allow('').optional(),
-  imageUrl: Joi.string().trim().uri().required(),
+  imageUrl: mediaPathOrUrl.required(),
   category: Joi.string().trim().max(100).optional(),
   order: Joi.number().integer().min(0).optional(),
   published: Joi.boolean().optional(),
@@ -85,7 +110,7 @@ const testimonialCreate = Joi.object({
   authorName: Joi.string().trim().max(100).required(),
   authorTitle: Joi.string().trim().max(100).allow('').optional(),
   authorCompany: Joi.string().trim().max(100).allow('').optional(),
-  authorAvatar: Joi.string().trim().uri().allow('').optional(),
+  authorAvatar: mediaPathOrUrl.allow('').optional(),
   quote: Joi.string().trim().max(1000).required(),
   rating: Joi.number().integer().min(1).max(5).optional(),
   order: Joi.number().integer().min(0).optional(),

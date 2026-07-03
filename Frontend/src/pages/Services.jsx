@@ -6,6 +6,7 @@ import PageHero from '@/components/shared/PageHero';
 import SectionHeading from '@/components/shared/SectionHeading';
 import { services as sampleServices } from '@/data/siteData';
 import { usePublicContent, mergePublishedWithSamples } from '@/hooks/usePublicContent';
+import { adaptService } from '@/utils/contentAdapters';
 
 const Services = () => {
   const { items: publishedServices } = usePublicContent('services', {
@@ -18,10 +19,7 @@ const Services = () => {
     () =>
       mergePublishedWithSamples(
         publishedServices.map((service, index) => ({
-          id: service._id,
-          title: service.title,
-          description: service.description,
-          imageUrl: service.imageUrl,
+          ...adaptService(service, index),
           icon: sampleServices[index % sampleServices.length]?.icon,
         })),
         sampleServices.map((service, index) => ({ ...service, id: `sample-${index}` })),
